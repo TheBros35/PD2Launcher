@@ -1,12 +1,58 @@
 ﻿<Window x:Class="PD2Launcherv2.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:PD2Launcherv2"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        xmlns:local="clr-namespace:PD2Launcherv2.CustomControl"
+        Title="Project Diablo 2 Launcher" Height="650" Width="800"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent">
     <Grid>
+        <Image Source="pack://application:,,,/Resources/Images/bg.jpg" Stretch="Fill"
+               MouseLeftButtonDown="BackgroundImage_MouseLeftButtonDown"/>
 
+        <!-- Logo in the center -->
+        <Image xmlns:gif="http://wpfanimatedgif.codeplex.com"
+       gif:ImageBehavior.AnimatedSource="pack://application:,,,/Resources/Images/logo.gif"
+       Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Top right buttons-->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
+            <local:CustomImageButton x:Name="MinimizeButton"
+                             Width="25" Height="25" Margin="0,10,5,0"
+                             NormalImageSource="pack://application:,,,/Resources/Images/minimize.jpg"
+                             PressedImageSource="pack://application:,,,/Resources/Images/minimize_pressed.jpg"
+                             Click="MinimizeButton_Click"/>
+            <local:CustomImageButton x:Name="CloseButton"
+                             Width="25" Height="25" Margin="5,10,0,0"
+                             NormalImageSource="pack://application:,,,/Resources/Images/close.jpg"
+                             PressedImageSource="pack://application:,,,/Resources/Images/close_pressed.jpg"
+                             Click="CloseButton_Click"/>
+        </StackPanel>
+
+        <!-- Bottom left buttons -->
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10">
+            <local:CustomImageButton x:Name="PlayButton" Width="270" Height="35" Margin="0,0,0,10"
+                                     NormalImageSource="pack://application:,,,/Resources/Images/play.jpg"
+                                     PressedImageSource="pack://application:,,,/Resources/Images/play_pressed.jpg"
+                                     Click="PlayButton_Click"/>
+            <local:CustomImageButton x:Name="OptionsButton" Width="270" Height="35" Margin="0,0,0,10"
+                                     NormalImageSource="pack://application:,,,/Resources/Images/options.jpg"
+                                     PressedImageSource="pack://application:,,,/Resources/Images/options_pressed.jpg"
+                                     Click="OptionsButton_Click"/>
+            <local:CustomImageButton x:Name="LootButton" Width="270" Height="28" Margin="0,-11,0,10"
+                                     NormalImageSource="pack://application:,,,/Resources/Images/loot.jpg"
+                                     PressedImageSource="pack://application:,,,/Resources/Images/loot_pressed.jpg"
+                                     Click="LootButton_Click"/>
+        </StackPanel>
+
+        <!-- Bottom right buttons -->
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+            <local:CustomImageButton x:Name="DonateButton" Width="270" Height="35" Margin="0,0,0,10"
+                                     NormalImageSource="pack://application:,,,/Resources/Images/donate.jpg"
+                                     PressedImageSource="pack://application:,,,/Resources/Images/donate_pressed.jpg"
+                                     Click="DonateButton_Click"/>
+            <local:CustomImageButton x:Name="AboutButton" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,0,0,0"
+                                     NormalImageSource="pack://application:,,,/Resources/Images/btn_more.jpg"
+                                     PressedImageSource="pack://application:,,,/Resources/Images/btn_more_pressed.jpg"
+                                     Click="AboutButton_Click"/>
+        </StackPanel>
     </Grid>
 </Window>

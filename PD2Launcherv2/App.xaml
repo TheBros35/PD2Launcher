@@ -4,6 +4,15 @@
              xmlns:local="clr-namespace:PD2Launcherv2"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml"/>
+                <ResourceDictionary Source="Resources/Styles/ControlStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <FontFamily x:Key="BlizzHeavy">./Fonts/exocet-blizzard-heavy.otf</FontFamily>
+            <FontFamily x:Key="BlizzLight">./Fonts/exocet-blizzard-light.ttf</FontFamily>
+            <FontFamily x:Key="BlizzMedium">./Fonts/exocet-blizzard-medium.ttf</FontFamily>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
