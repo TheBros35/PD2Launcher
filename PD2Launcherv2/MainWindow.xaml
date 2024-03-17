@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PD2Launcherv2.CustomControl"
-        Title="Project Diablo 2 Launcher" Height="650" Width="800"
+        Title="Project Diablo 2 Launcher" Height="600" Width="800"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
     <Grid>
         <Image Source="pack://application:,,,/Resources/Images/bg.jpg" Stretch="Fill"
@@ -10,8 +10,8 @@
 
         <!-- Logo in the center -->
         <Image xmlns:gif="http://wpfanimatedgif.codeplex.com"
-       gif:ImageBehavior.AnimatedSource="pack://application:,,,/Resources/Images/logo.gif"
-       Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+       gif:ImageBehavior.AnimatedSource="pack://application:,,,/Resources/Images/logo.gif" Stretch="None" 
+               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,5,0"/>
 
         <!-- Top right buttons-->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
