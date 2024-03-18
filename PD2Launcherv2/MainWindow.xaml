@@ -4,6 +4,10 @@
         xmlns:local="clr-namespace:PD2Launcherv2.CustomControl"
         Title="Project Diablo 2 Launcher" Height="600" Width="800"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="0" CornerRadius="0" GlassFrameThickness="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
     <Grid>
         <Image Source="pack://application:,,,/Resources/Images/bg.jpg" Stretch="Fill"
                MouseLeftButtonDown="BackgroundImage_MouseLeftButtonDown"/>
@@ -36,11 +40,11 @@
             <local:CustomImageButton x:Name="OptionsButton" Width="270" Height="35" Margin="0,0,0,10"
                                      NormalImageSource="pack://application:,,,/Resources/Images/options.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/options_pressed.jpg"
-                                     Click="OptionsButton_Click"/>
+                                     Command="{Binding OpenOptionsCommand}"/>
             <local:CustomImageButton x:Name="LootButton" Width="270" Height="28" Margin="0,-11,0,10"
                                      NormalImageSource="pack://application:,,,/Resources/Images/loot.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/loot_pressed.jpg"
-                                     Click="LootButton_Click"/>
+                                     Command="{Binding OpenLootCommand}"/>
         </StackPanel>
 
         <!-- Bottom right buttons -->
@@ -52,7 +56,9 @@
             <local:CustomImageButton x:Name="AboutButton" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,0,0,0"
                                      NormalImageSource="pack://application:,,,/Resources/Images/btn_more.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/btn_more_pressed.jpg"
-                                     Click="AboutButton_Click"/>
+                                     Command="{Binding OpenAboutCommand}"/>
         </StackPanel>
+        <Rectangle x:Name="Overlay" Fill="#AA000000" Visibility="Collapsed" />
+        <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Content="{Binding CurrentView}" />
     </Grid>
 </Window>

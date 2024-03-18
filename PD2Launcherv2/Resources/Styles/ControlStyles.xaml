@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:PD2Launcherv2.CustomControl">
 
+    <!-- Image Button -->
     <Style TargetType="{x:Type local:CustomImageButton}">
         <Setter Property="Template">
             <Setter.Value>
@@ -13,6 +14,44 @@
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="img" Property="Source" Value="{Binding PressedImageSource, RelativeSource={RelativeSource TemplatedParent}}"/>
                         </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Close Button -->
+    <Style x:Key="CloseButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource BlizzHeavy}"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Content="{TemplateBinding Content}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <!-- Custom hover effect using the 'SHAKO' color -->
+                            <Setter Property="BorderBrush" Value="{StaticResource ShakoBrush}" />
+                            <Setter Property="BorderThickness" Value="2.5" />
+                        </Trigger>
+                        <!-- ... other triggers if needed ... -->
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

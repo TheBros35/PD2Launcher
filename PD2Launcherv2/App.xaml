@@ -10,9 +10,11 @@
                 <ResourceDictionary Source="Resources/Styles/ControlStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <FontFamily x:Key="BlizzHeavy">./Fonts/exocet-blizzard-heavy.otf</FontFamily>
-            <FontFamily x:Key="BlizzLight">./Fonts/exocet-blizzard-light.ttf</FontFamily>
-            <FontFamily x:Key="BlizzMedium">./Fonts/exocet-blizzard-medium.ttf</FontFamily>
+            <!-- Font Family Resources -->
+            <FontFamily x:Key="BlizzHeavy">./Resources/Fonts/exocet-blizzard-heavy.otf#Exocet Blizzard OT Light Bold</FontFamily>
+            <FontFamily x:Key="BlizzLight">./Resources/Fonts/exocet-blizzard-light.ttf#Exocet Blizzard OT Light Regular</FontFamily>
+            <FontFamily x:Key="BlizzMedium">./Resources/Fonts/exocet-blizzard-medium.ttf#Exocet Blizzard OT Medium Regular</FontFamily>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
