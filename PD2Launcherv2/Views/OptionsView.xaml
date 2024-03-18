@@ -4,8 +4,8 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
+      Width="750" Height="550"
       mc:Ignorable="d" 
-      d:DesignHeight="525" d:DesignWidth="725"
       Title="OptionsView">
 
     <Page.DataContext>
@@ -13,10 +13,11 @@
     </Page.DataContext>
 
     <Grid>
-        <Image Source="/Resources/Images/bg_plain.jpg" Opacity="0.5" Stretch="Fill"/>
+        <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
 
         <!-- Your options controls go here -->
 
-        <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" Click="CloseButton_Click" Content="X" />
+        <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" 
+                FontSize="25" Content="X" />
     </Grid>
 </Page>

@@ -24,13 +24,5 @@ namespace PD2Launcherv2.Views
         {
             InitializeComponent();
         }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Assuming you're using a NavigationService in a single window app
-            NavigationService?.GoBack();
-            // If you're using multiple windows, you may need:
-            // this.Close(); or ((Window)this.Parent).Close();
-        }
     }
 }
