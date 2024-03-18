@@ -1,4 +1,9 @@
 ﻿
+using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
+using PD2Launcherv2.Enums;
+using PD2Launcherv2.Helpers;
+using PD2Launcherv2.Views;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
@@ -10,10 +15,44 @@ namespace PD2Launcherv2
     /// </summary>
     public partial class MainWindow : Window
     {
+        public ICommand OpenOptionsCommand { get; private set; }
+        public ICommand OpenLootCommand { get; private set; }
+        public ICommand OpenDonateCommand { get; private set; }
+        public ICommand OpenAboutCommand { get; private set; }
+
         public MainWindow()
         {
             InitializeComponent();
+
+            OpenOptionsCommand = new RelayCommand(ShowOptionsView);
+            OpenLootCommand = new RelayCommand(ShowLootView);
+            OpenAboutCommand = new RelayCommand(ShowAboutView);
+
+            // Registering to receive NavigationMessage
+            Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
+
+
+            DataContext = this;
         }
+        private void OnNavigationMessageReceived(NavigationMessage message)
+        {
+            Overlay.Visibility = Visibility.Collapsed;
+            // Handle the message
+            if (message.Action == NavigationAction.GoBack)
+            {
+                // Assuming MainFrame is your Frame control
+                if (MainFrame.CanGoBack)
+                {
+                    MainFrame.GoBack();
+                }
+                else
+                {
+                    // If no navigation history, just clear the content of the frame.
+                    MainFrame.Content = null;
+                }
+            }
+        }
+
         private void BackgroundImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -31,25 +70,32 @@ namespace PD2Launcherv2
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("OptionsButton_Click start");
+            ShowOptionsView();
             Debug.WriteLine("OptionsButton_Click end");
         }
 
-        private void LootButton_Click(object sender, RoutedEventArgs e)
+        private void ShowOptionsView()
         {
-            Debug.WriteLine("LootButton_Click start");
-            Debug.WriteLine("LootButton_Click end");
+            Overlay.Visibility = Visibility.Visible;
+            MainFrame.Content = new OptionsView();
+        }
+
+        private void ShowLootView()
+        {
+            Overlay.Visibility = Visibility.Visible;
+            MainFrame.Content = new FiltersView();
+        }
+
+        private void ShowAboutView()
+        {
+            Overlay.Visibility = Visibility.Visible;
+            MainFrame.Content = new AboutView();
         }
 
         private void DonateButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("DonateButton_Click start");
             Debug.WriteLine("DonateButton_Click end");
-        }
-
-        private void AboutButton_Click(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine("AboutButton_Click start");
-            Debug.WriteLine("AboutButton_Click end");
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
