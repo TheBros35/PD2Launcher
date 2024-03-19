@@ -6,10 +6,8 @@
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
       Width="750" Height="550"
       mc:Ignorable="d" 
-      Title="AboutView">
-    <Page.DataContext>
-        <local:AboutViewModel/>
-    </Page.DataContext>
+      Title="AboutView"
+      DataContext="{Binding AboutViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Grid>
         <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
@@ -22,5 +20,24 @@
                    VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0"
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
+
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="File Update Testing" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}"></TextBlock>
+            
+            <Button x:Name="PRODBucket" Content="PRODBucket" Style="{StaticResource CloseButtonStyle}"
+                    Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
+                    Command="{Binding ProdBucket}" FontFamily="{StaticResource BlizzHeavy}">
+            </Button>
+
+            <Button x:Name="BetaBucket" Content="BetaBucket" Style="{StaticResource CloseButtonStyle}"
+                    Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
+                    Command="{Binding BetaBucket}" FontFamily="{StaticResource BlizzHeavy}">
+            </Button>
+
+            <Button x:Name="UPDATEbtn" Content="UPDATEBtn" Style="{StaticResource CloseButtonStyle}"
+                    Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
+                    Command="{Binding UpdateFilesCall}" FontFamily="{StaticResource BlizzHeavy}">
+            </Button>
+        </StackPanel>
     </Grid>
 </Page>

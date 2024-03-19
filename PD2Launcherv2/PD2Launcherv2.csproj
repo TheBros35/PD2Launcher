@@ -48,10 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Resource Include="Resources\Fonts\exocet-blizzard-heavy.otf" />
     <Resource Include="Resources\Fonts\exocet-blizzard-light.ttf" />
     <Resource Include="Resources\Fonts\exocet-blizzard-medium.ttf" />

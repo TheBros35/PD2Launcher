@@ -1,75 +1,62 @@
-﻿
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
+using PD2Launcherv2.Models.ProjectDiablo2Launcherv2.Models;
+using ProjectDiablo2Launcherv2.Models;
 using System.IO;
 
 namespace PD2Launcherv2.Storage
 {
-    /// <summary>
-    /// Provides local storage functionality for the application settings.
-    /// Implements the <see cref="ILocalStorage"/> interface.
-    /// </summary>
     public class LocalStorage : ILocalStorage
     {
-        /// <summary>
-        /// The file name for storing the launcher settings.
-        /// </summary>
         private const string StorageFileName = "launcherSettings.json";
+        private readonly string _storageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppData");
 
-        /// <summary>
-        /// The directory path where the storage file is located.
-        /// </summary>
-        private readonly string _storageDirectory;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="LocalStorage"/> class.
-        /// Sets the storage directory path to the 'AppData' folder within the current domain's base directory.
-        /// </summary>
-        public LocalStorage()
-        {
-            _storageDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppData");
-        }
-
-        /// <summary>
-        /// Saves the provided application settings to the local storage file.
-        /// </summary>
-        /// <param name="settings">The settings to save.</param>
-        public void Save(AllSettings settings)
-        {
-            // Ensures that the storage directory exists, creates it if it doesn't.
-            if (!Directory.Exists(_storageDirectory))
-            {
-                Directory.CreateDirectory(_storageDirectory);
-            }
-
-            // Combines the directory path and file name to get the full path.
-            string filePath = Path.Combine(_storageDirectory, StorageFileName);
-            // Serializes the settings object to JSON with indented formatting for readability.
-            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            // Writes the JSON string to the file, overwriting any existing content.
-            File.WriteAllText(filePath, json);
-        }
-
-        /// <summary>
-        /// Loads the application settings from the local storage file.
-        /// </summary>
-        /// <returns>An <see cref="AllSettings"/> instance containing the loaded settings.</returns>
         public AllSettings Load()
         {
-            // Combines the directory path and file name to get the full path.
             string filePath = Path.Combine(_storageDirectory, StorageFileName);
-            // Checks if the file exists. If not, returns a new instance of settings.
-            if (!File.Exists(filePath))
+            if (!File.Exists(filePath)) return new AllSettings(); // Or default settings
+
+            string json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<AllSettings>(json) ?? new AllSettings();
+        }
+
+        public void Update<T>(StorageKey key, T value)
+        {
+            var settings = Load(); // Load the entire settings to keep other parts intact
+
+            switch (key)
             {
-                return new AllSettings(); // Alternatively, return a default settings object.
+                case StorageKey.LauncherArgs:
+                    settings.LauncherArgs = value as LauncherArgs; break;
+                case StorageKey.DdrawOptions:
+                    settings.DdrawOptions = value as DdrawOptions; break;
+                case StorageKey.FileUpdateModel:
+                    settings.FileUpdateModel = value as FileUpdateModel; break;
+                case StorageKey.FilterStorage:
+                    settings.FilterStorage = value as FilterStorage; break;
+                case StorageKey.News:
+                    settings.News = value as News; break;
+                    // Add other cases as needed
             }
 
-            // Reads the JSON string from the file.
-            string json = File.ReadAllText(filePath);
-            // Deserializes the JSON string back into an AllSettings object.
-            // Returns a new instance of settings if deserialization returns null.
-            return JsonConvert.DeserializeObject<AllSettings>(json) ?? new AllSettings();
+            // Serialize the updated settings and save them back to the file
+            string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            File.WriteAllText(Path.Combine(_storageDirectory, StorageFileName), json);
+        }
+
+        public T LoadSection<T>(StorageKey key)
+        {
+            var settings = Load();
+            return key switch
+            {
+                StorageKey.LauncherArgs => settings.LauncherArgs as T,
+                StorageKey.DdrawOptions => settings.DdrawOptions as T,
+                StorageKey.FileUpdateModel => settings.FileUpdateModel as T,
+                StorageKey.FilterStorage => settings.FilterStorage as T,
+                StorageKey.News => settings.News as T,
+                _ => default
+            };
         }
     }
 }

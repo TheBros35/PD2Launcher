@@ -6,10 +6,8 @@
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
       Width="750" Height="550"
       mc:Ignorable="d" 
-      Title="FiltersView">
-    <Page.DataContext>
-        <local:FiltersViewModel/>
-    </Page.DataContext>
+      Title="FiltersView"
+      DataContext="{Binding FiltersViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Grid>
         <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
@@ -22,5 +20,10 @@
                    VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0"
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
+
+        <StackPanel>
+            <Button x:Name="AuthorCall" Content="AuthorCall" Width="50" Height="35" Command="{Binding AuthorCall}"></Button>
+            <Button x:Name="FilterCall" Content="FilterCall" Width="50" Height="35" Command="{Binding FilterCall}"></Button>
+        </StackPanel>
     </Grid>
 </Page>
