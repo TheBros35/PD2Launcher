@@ -53,6 +53,14 @@ namespace PD2Launcherv2
             }
         }
 
+        private void ClearNavigationStack()
+        {
+            while (MainFrame.CanGoBack)
+            {
+                MainFrame.RemoveBackEntry();
+            }
+        }
+
         private void BackgroundImage_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -76,20 +84,23 @@ namespace PD2Launcherv2
 
         private void ShowOptionsView()
         {
+            ClearNavigationStack();
             Overlay.Visibility = Visibility.Visible;
-            MainFrame.Content = new OptionsView();
+            MainFrame.Navigate(new OptionsView());
         }
 
         private void ShowLootView()
         {
+            ClearNavigationStack();
             Overlay.Visibility = Visibility.Visible;
-            MainFrame.Content = new FiltersView();
+            MainFrame.Navigate(new FiltersView());
         }
 
         private void ShowAboutView()
         {
+            ClearNavigationStack();
             Overlay.Visibility = Visibility.Visible;
-            MainFrame.Content = new AboutView();
+            MainFrame.Navigate(new AboutView());
         }
 
         private void DonateButton_Click(object sender, RoutedEventArgs e)
