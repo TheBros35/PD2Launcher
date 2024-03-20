@@ -4,7 +4,13 @@ namespace PD2Launcherv2.Interfaces
 {
     public interface ILocalStorage
     {
-        void Save(AllSettings settings);
+        // load everything
         AllSettings Load();
+
+        //save a setting bucket by keyname
+        void Update<T>(StorageKey key, T value) where T : class;
+
+        //load a setting bucket by keyname
+        T LoadSection<T>(StorageKey key) where T : class;
     }
 }

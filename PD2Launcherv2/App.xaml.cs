@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Storage;
+using PD2Launcherv2.ViewModels;
 using System.Windows;
 
 namespace PD2Launcherv2
@@ -15,6 +16,7 @@ namespace PD2Launcherv2
         /// Holds the service provider for dependency injection.
         /// </summary>
         private readonly IServiceProvider _serviceProvider;
+        public static T Resolve<T>() => ((App)Current)._serviceProvider.GetRequiredService<T>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
@@ -23,7 +25,7 @@ namespace PD2Launcherv2
         public App()
         {
             // Initializes a new instance of the service collection
-            ServiceCollection services = new ServiceCollection();
+            ServiceCollection services = new();
             ConfigureServices(services);
             // Builds the service provider from the service collection
             _serviceProvider = services.BuildServiceProvider();
@@ -33,11 +35,14 @@ namespace PD2Launcherv2
         /// Configures services for the application's dependency injection container.
         /// </summary>
         /// <param name="services">The service collection to add services to.</param>
-        private void ConfigureServices(ServiceCollection services)
+        private static void ConfigureServices(ServiceCollection services)
         {
             // Registers the LocalStorage service with its interface for dependency injection.
             // This makes LocalStorage available throughout the application via DI.
             services.AddSingleton<ILocalStorage, LocalStorage>();
+            services.AddTransient<OptionsViewModel>();
+            services.AddTransient<AboutViewModel>();
+            services.AddTransient<FiltersViewModel>();
 
             // Additional services and view models can be registered here as needed.
             // This allows for easy expansion and maintenance of the application's components.
