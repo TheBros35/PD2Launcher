@@ -76,4 +76,8 @@
     <Resource Include="Resources\Images\updating_disabled.jpg" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\" />
+  </ItemGroup>
+
 </Project>

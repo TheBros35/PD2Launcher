@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
-using PD2Launcherv2.Models.ProjectDiablo2Launcherv2.Models;
 using ProjectDiablo2Launcherv2.Models;
+using System.Diagnostics;
 using System.IO;
 
 namespace PD2Launcherv2.Storage
@@ -23,7 +23,8 @@ namespace PD2Launcherv2.Storage
 
         public void Update<T>(StorageKey key, T value) where T : class
         {
-            var settings = Load(); // Load the entire settings to keep other parts intact
+            Debug.WriteLine($"value: {value}");
+            var settings = Load();
 
             switch (key)
             {
@@ -33,8 +34,10 @@ namespace PD2Launcherv2.Storage
                     settings.DdrawOptions = value as DdrawOptions; break;
                 case StorageKey.FileUpdateModel:
                     settings.FileUpdateModel = value as FileUpdateModel; break;
-                case StorageKey.FilterStorage:
-                    settings.FilterStorage = value as FilterStorage; break;
+                case StorageKey.SelectedAuthorAndFilter:
+                    settings.SelectedAuthorAndFilter = value as SelectedAuthorAndFilter; break;
+                case StorageKey.Pd2AuthorList:
+                    settings.Pd2AuthorList = value as Pd2AuthorList; break;
                 case StorageKey.News:
                     settings.News = value as News; break;
                     // Add other cases as needed
@@ -49,6 +52,9 @@ namespace PD2Launcherv2.Storage
             // Serialize the updated settings and save them back to the file
             string filePath = Path.Combine(_storageDirectory, StorageFileName);
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            Debug.WriteLine($"JSON to save: {json}");
+            Debug.WriteLine($"Saving to file: {filePath}");
+            Debug.WriteLine($"settings before save: {JsonConvert.SerializeObject(settings, Formatting.Indented)}");
             File.WriteAllText(filePath, json);
         }
 
@@ -60,7 +66,8 @@ namespace PD2Launcherv2.Storage
                 StorageKey.LauncherArgs => settings.LauncherArgs as T,
                 StorageKey.DdrawOptions => settings.DdrawOptions as T,
                 StorageKey.FileUpdateModel => settings.FileUpdateModel as T,
-                StorageKey.FilterStorage => settings.FilterStorage as T,
+                StorageKey.Pd2AuthorList => settings.Pd2AuthorList as T,
+                StorageKey.SelectedAuthorAndFilter => settings.SelectedAuthorAndFilter as T,
                 StorageKey.News => settings.News as T,
                 _ => default,
             };

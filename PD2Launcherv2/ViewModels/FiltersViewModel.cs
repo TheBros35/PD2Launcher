@@ -5,9 +5,6 @@ using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
-using PD2Launcherv2.Models.ProjectDiablo2Launcherv2.Models;
-using PD2Launcherv2.Services;
-using PD2Launcherv2.Storage;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
@@ -18,7 +15,7 @@ namespace PD2Launcherv2.ViewModels
 {
     public class FiltersViewModel : ViewModelBase
     {
-        private readonly HttpService _httpService = new();
+        private readonly FilterHelpers _filterHelpers;
         private readonly ILocalStorage _localStorage;
         private AllSettings _allSettings;
 
@@ -28,14 +25,16 @@ namespace PD2Launcherv2.ViewModels
         public FiltersViewModel(ILocalStorage localStorage)
         {
             CloseCommand = new RelayCommand(CloseView);
-            AuthorCall = new RelayCommand(AuthorCall_Click);
+            AuthorCall = new RelayCommand(async () => await AuthorCall_Click());
             FilterCall = new RelayCommand(FilterCall_Click);
             _localStorage = localStorage;
-        }
+            _filterHelpers = new FilterHelpers(new HttpClient(),_localStorage);
+    }
 
-        public void AuthorCall_Click()
+        public async Task AuthorCall_Click()
         {
             Debug.WriteLine("start AuthorCall_Click");
+            await _filterHelpers.FetchAndStoreFilterAuthorsAsync();
             Debug.WriteLine("end AuthorCall_Click");
 
         }
