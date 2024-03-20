@@ -3,6 +3,7 @@
                     xmlns:local="clr-namespace:PD2Launcherv2.CustomControl">
 
     <!-- Image Button -->
+
     <Style TargetType="{x:Type local:CustomImageButton}">
         <Setter Property="Template">
             <Setter.Value>
@@ -19,6 +20,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">

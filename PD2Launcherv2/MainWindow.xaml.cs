@@ -7,6 +7,7 @@ using PD2Launcherv2.Views;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 namespace PD2Launcherv2
 {
@@ -102,6 +103,17 @@ namespace PD2Launcherv2
             Overlay.Visibility = Visibility.Visible;
             MainFrame.Navigate(new AboutView());
         }
+
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            // Use the ProcessStartInfo class to open the link in the default browser
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+
+            // Prevent the default behavior of opening the link
+            e.Handled = true;
+        }
+
+
 
         private void DonateButton_Click(object sender, RoutedEventArgs e)
         {
