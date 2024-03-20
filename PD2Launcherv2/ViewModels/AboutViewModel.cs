@@ -26,7 +26,7 @@ namespace PD2Launcherv2.ViewModels
         public AboutViewModel(ILocalStorage localStorage)
         {
             _localStorage = localStorage;
-            _fileUpdateHelpers = new FileUpdateHelpers(folderPath, new HttpClient()); // Note: consider using HttpClientFactory in a real app
+            _fileUpdateHelpers = new FileUpdateHelpers(folderPath, new HttpClient());
 
             ProdBucket = new RelayCommand(ProdBucketAssign);
             BetaBucket = new RelayCommand(BetaBucketAssign);
