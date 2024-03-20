@@ -6,11 +6,9 @@
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
       Width="750" Height="550"
       mc:Ignorable="d" 
-      Title="OptionsView">
+      Title="OptionsView"
+      DataContext="{Binding OptionsViewModel, Source={StaticResource ViewModelLocator}}">
 
-    <Page.DataContext>
-        <local:OptionsViewModel/>
-    </Page.DataContext>
 
     <Grid>
         <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>

@@ -10,6 +10,8 @@
                 <ResourceDictionary Source="Resources/Styles/ControlStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <local:ViewModelLocator x:Key="ViewModelLocator"/>
+
             <!-- Font Family Resources -->
             <FontFamily x:Key="BlizzHeavy">./Resources/Fonts/exocet-blizzard-heavy.otf#Exocet Blizzard OT Light Bold</FontFamily>
             <FontFamily x:Key="BlizzLight">./Resources/Fonts/exocet-blizzard-light.ttf#Exocet Blizzard OT Light Regular</FontFamily>
