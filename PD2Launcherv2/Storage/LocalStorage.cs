@@ -21,7 +21,7 @@ namespace PD2Launcherv2.Storage
             return JsonConvert.DeserializeObject<AllSettings>(json) ?? new AllSettings();
         }
 
-        public void Update<T>(StorageKey key, T value)
+        public void Update<T>(StorageKey key, T value) where T : class
         {
             var settings = Load(); // Load the entire settings to keep other parts intact
 
@@ -40,12 +40,19 @@ namespace PD2Launcherv2.Storage
                     // Add other cases as needed
             }
 
+            // Check if the directory exists; if not, create it
+            if (!Directory.Exists(_storageDirectory))
+            {
+                Directory.CreateDirectory(_storageDirectory);
+            }
+
             // Serialize the updated settings and save them back to the file
+            string filePath = Path.Combine(_storageDirectory, StorageFileName);
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            File.WriteAllText(Path.Combine(_storageDirectory, StorageFileName), json);
+            File.WriteAllText(filePath, json);
         }
 
-        public T LoadSection<T>(StorageKey key)
+        public T LoadSection<T>(StorageKey key) where T : class
         {
             var settings = Load();
             return key switch
@@ -55,7 +62,7 @@ namespace PD2Launcherv2.Storage
                 StorageKey.FileUpdateModel => settings.FileUpdateModel as T,
                 StorageKey.FilterStorage => settings.FilterStorage as T,
                 StorageKey.News => settings.News as T,
-                _ => default
+                _ => default,
             };
         }
     }
