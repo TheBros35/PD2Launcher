@@ -125,10 +125,8 @@ namespace PD2Launcherv2.ViewModels
             Debug.WriteLine("end ReadStorageCheck \n");
         }
 
-
         private void CloseView()
         {
-            // Sending a message to anyone who's listening for NavigationMessage
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
         }
     }
