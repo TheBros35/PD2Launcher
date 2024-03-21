@@ -21,14 +21,52 @@ namespace PD2Launcherv2.Helpers
         }
         private async Task<HttpResponseMessage> GetAsync(string url, string eTag = null)
         {
+            Debug.WriteLine($"in GetAsync {url}");
             var request = new HttpRequestMessage(HttpMethod.Get, url);
 
             if (!string.IsNullOrWhiteSpace(eTag))
             {
                 request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue($"\"{eTag}\""));
+                request.Headers.Add("User-Agent", "PD2Launcherv2");
             }
             Debug.WriteLine($"eTag sent out {eTag}");
             return await _httpClient.SendAsync(request);
+        }
+
+        private async Task<HttpResponseMessage> GetFilterListAsync(string url)
+        {
+            Debug.WriteLine($"in GetFilterListAsync {url}");
+            Debug.WriteLine($"Getting Filter Liost from {url}");
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("User-Agent", "PD2Launcherv2");
+            return await _httpClient.SendAsync(request);
+        }
+
+        public async Task<List<FilterFile>> FetchFilterContentsAsync(string url)
+        {
+            try
+            {
+                var response = await GetFilterListAsync(url);
+                Debug.WriteLine($"response.content {response.Content}");
+                Debug.WriteLine($"{response.StatusCode}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var allFiles = JsonConvert.DeserializeObject<List<FilterFile>>(content);
+                    Debug.WriteLine($"content: {content}");
+                    Debug.WriteLine($"allFiles: {allFiles}");
+                    // Filter the list to include only .filter files and README.md
+                    var filterFiles = allFiles.Where(f => f.Name.EndsWith(".filter") || f.Name.Equals("README.md", StringComparison.OrdinalIgnoreCase)).ToList();
+                    Debug.WriteLine($"filterFiles {filterFiles}");
+                    return filterFiles;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error fetching filter contents: {ex.Message}");
+            }
+
+            return null;
         }
 
         public async Task FetchAndStoreFilterAuthorsAsync()

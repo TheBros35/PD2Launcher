@@ -1,4 +1,5 @@
 ﻿using PD2Launcherv2.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PD2Launcherv2.Views
@@ -12,6 +13,15 @@ namespace PD2Launcherv2.Views
         {
             InitializeComponent();
             DataContext = App.Resolve<FiltersViewModel>();
+        }
+
+        private async void FiltersView_Loaded(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as FiltersViewModel;
+            if (viewModel != null)
+            {
+                await viewModel.InitializeAsync();
+            }
         }
     }
 }
