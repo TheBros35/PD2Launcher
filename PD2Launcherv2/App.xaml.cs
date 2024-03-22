@@ -16,6 +16,7 @@ namespace PD2Launcherv2
         /// Holds the service provider for dependency injection.
         /// </summary>
         private readonly IServiceProvider _serviceProvider;
+        public static IServiceProvider ServiceProvider { get; private set; }
         public static T Resolve<T>() => ((App)Current)._serviceProvider.GetRequiredService<T>();
 
         /// <summary>
@@ -29,6 +30,7 @@ namespace PD2Launcherv2
             ConfigureServices(services);
             // Builds the service provider from the service collection
             _serviceProvider = services.BuildServiceProvider();
+            ServiceProvider = _serviceProvider;
         }
 
         /// <summary>
