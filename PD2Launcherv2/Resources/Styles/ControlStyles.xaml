@@ -21,6 +21,43 @@
         </Setter>
     </Style>
 
+    <Style x:Key="CustomColorChangeButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource GoldBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource BlackBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource BlizzMedium}" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Margin" Value="0,0,0,50" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+        <!-- Define the default appearance of the button, including any borders, padding, etc. -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="5">
+                        <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Change background and foreground when the button is pressed -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{StaticResource ShakoBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource BlackBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>

@@ -15,6 +15,9 @@ namespace PD2Launcherv2.ViewModels
     {
         private readonly FilterHelpers _filterHelpers;
         private readonly ILocalStorage _localStorage;
+        public RelayCommand SaveFilterCommand { get; private set; }
+        public RelayCommand ViewReadmeCommand { get; private set; }
+        public RelayCommand OpenAuthorsPageCommand { get; private set; }
 
         private List<FilterAuthor> _authorsList;
         public List<FilterAuthor> AuthorsList
@@ -53,6 +56,7 @@ namespace PD2Launcherv2.ViewModels
             {
                 _filtersList = value;
                 OnPropertyChanged();
+                SelectStoredFilter();
             }
         }
         private FilterFile _selectedFilter;
@@ -65,6 +69,7 @@ namespace PD2Launcherv2.ViewModels
                 {
                     _selectedFilter = value;
                     OnPropertyChanged();
+                    SaveFilterToStorage();
                 }
             }
         }
@@ -93,12 +98,39 @@ namespace PD2Launcherv2.ViewModels
             _filterHelpers = new FilterHelpers(new HttpClient(), _localStorage);
             AuthorCall = new RelayCommand(async () => await AuthorCall_Click());
             FilterCall = new RelayCommand(FilterCall_Click);
+            SaveFilterCommand = new RelayCommand(SaveFilterExecute);
+            ViewReadmeCommand = new RelayCommand(ViewReadmeExecute);
+            OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
         }
 
         public async Task InitializeAsync()
         {
             Debug.WriteLine("Initializing FiltersViewModel...");
             await FetchAndStoreFilterAuthorsAsync();
+            SelectStoredAuthorAndFilter();
+        }
+
+        private void SelectStoredAuthorAndFilter()
+        {
+            var storedSelection = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
+            if (storedSelection != null)
+            {
+                // Attempt to select the stored author
+                SelectedAuthor = AuthorsList.FirstOrDefault(a => a.Author == storedSelection.selectedAuthor.Author);
+            }
+        }
+
+        private void SelectStoredFilter()
+        {
+            // Ensure we have a selected author to match the filter with
+            if (SelectedAuthor == null) return;
+
+            var storedSelection = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
+            if (storedSelection?.selectedFilter != null)
+            {
+                // Attempt to select the stored filter
+                SelectedFilter = FiltersList.FirstOrDefault(f => f.Name == storedSelection.selectedFilter.Name);
+            }
         }
 
         private async void FetchDataFromAuthorUrl(string url)
@@ -146,9 +178,58 @@ namespace PD2Launcherv2.ViewModels
             Debug.WriteLine("FilterCall_Click end");
         }
 
+        private void SaveFilterToStorage()
+        {
+            if (SelectedAuthor != null && SelectedFilter != null)
+            {
+                var selection = new SelectedAuthorAndFilter
+                {
+                    selectedAuthor = SelectedAuthor,
+                    selectedFilter = SelectedFilter
+                };
+
+                _localStorage.Update(StorageKey.SelectedAuthorAndFilter, selection);
+            }
+        }
+
         private void CloseView()
         {
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
+        }
+
+        private void SaveFilterExecute()
+        {
+            SaveFilterToStorage();
+        }
+
+        private void ViewReadmeExecute()
+        {
+            // Implementation for viewing readme
+        }
+
+        private void OpenAuthorsPageExecute()
+        {
+            if (SelectedAuthor != null && !string.IsNullOrEmpty(SelectedAuthor.Url))
+            {
+                string modifiedUrl = SelectedAuthor.Url
+                    .Replace("api.github.com/repos", "github.com")
+                    .Replace("/contents", "");
+
+                OpenUrlInBrowser(modifiedUrl);
+            }
+        }
+
+        private void OpenUrlInBrowser(string url)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to open URL: {url}. Error: {ex.Message}");
+                // Optionally, inform the user that opening the URL failed.
+            }
         }
     }
 }

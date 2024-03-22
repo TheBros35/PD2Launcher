@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
+using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Views;
 using System.Diagnostics;
 using System.Windows;
@@ -17,6 +18,7 @@ namespace PD2Launcherv2
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly ILocalStorage _localStorage;
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
         public ICommand OpenDonateCommand { get; private set; }
@@ -36,18 +38,10 @@ namespace PD2Launcherv2
             OpenOptionsCommand = new RelayCommand(ShowOptionsView);
             OpenLootCommand = new RelayCommand(ShowLootView);
             OpenAboutCommand = new RelayCommand(ShowAboutView);
-            //OpenHomeCommand = new RelayCommand(() => OpenUrlInBrowser("https://www.projectdiablo2.com"));
-            //OpenTradeCommand = new RelayCommand(() => OpenUrlInBrowser("https://www.projectdiablo2.com/market"));
-            //OpenRedditCommand = new RelayCommand(() => OpenUrlInBrowser("https://www.reddit.com/r/ProjectDiablo2/"));
-            //OpenTwitterCommand = new RelayCommand(() => OpenUrlInBrowser("https://twitter.com/projectdiablo2"));
-            //OpenDiscordCommand = new RelayCommand(() => OpenUrlInBrowser("https://discord.gg/RgX4MWu"));
-            //OpenWikiCommand = new RelayCommand(() => OpenUrlInBrowser("https://projectdiablo2.miraheze.org/wiki/Main_Page"));
-
+            _localStorage = (ILocalStorage)App.ServiceProvider.GetService(typeof(ILocalStorage));
 
             // Registering to receive NavigationMessage
             Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
-
-
             DataContext = this;
         }
         private void OnNavigationMessageReceived(NavigationMessage message)
@@ -127,8 +121,6 @@ namespace PD2Launcherv2
             // Prevent the default behavior of opening the link
             e.Handled = true;
         }
-
-
 
         private void DonateButton_Click(object sender, RoutedEventArgs e)
         {
