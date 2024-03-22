@@ -4,8 +4,11 @@ using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
+using PD2Launcherv2.Models;
 using PD2Launcherv2.Views;
+using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,6 +22,8 @@ namespace PD2Launcherv2
     public partial class MainWindow : Window
     {
         private readonly ILocalStorage _localStorage;
+        private readonly FileUpdateHelpers _fileUpdateHelpers;
+        private readonly FilterHelpers _filterHelpers;
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
         public ICommand OpenDonateCommand { get; private set; }
@@ -39,6 +44,8 @@ namespace PD2Launcherv2
             OpenLootCommand = new RelayCommand(ShowLootView);
             OpenAboutCommand = new RelayCommand(ShowAboutView);
             _localStorage = (ILocalStorage)App.ServiceProvider.GetService(typeof(ILocalStorage));
+            _fileUpdateHelpers = (FileUpdateHelpers)App.ServiceProvider.GetService(typeof(FileUpdateHelpers));
+            _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
 
             // Registering to receive NavigationMessage
             Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
@@ -79,9 +86,61 @@ namespace PD2Launcherv2
             }
         }
 
-        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
+            // Attempt to load the selected author and filter
+            var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
+            if (selectedAuthorAndFilter?.selectedFilter != null)
+            {
+                bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
+            }
+            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            if (fileUpdateModel != null)
+            {
+                if (fileUpdateModel != null && Directory.Exists(fileUpdateModel.FilePath))
+                {
+                    var cloudFileItems = await _fileUpdateHelpers.GetCloudFileMetadataAsync(fileUpdateModel.Client);
+
+                    foreach (var cloudFile in cloudFileItems)
+                    {
+                        // Skip directory markers
+                        if (cloudFile.Name.EndsWith("/"))
+                        {
+                            // Ensure the directory structure is created for directory markers
+                            var directPath = Path.Combine(fileUpdateModel.FilePath, cloudFile.Name.TrimEnd('/'));
+                            if (!Directory.Exists(directPath))
+                            {
+                                Directory.CreateDirectory(directPath);
+                            }
+                            continue;
+                        }
+
+                        var localFilePath = Path.Combine(fileUpdateModel.FilePath, cloudFile.Name);
+
+                        // Ensure the directory for the file exists
+                        var directoryPath = Path.GetDirectoryName(localFilePath);
+                        if (!Directory.Exists(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+
+                        // Download and update the file if needed
+                        if (!_fileUpdateHelpers.CompareCRC(localFilePath, cloudFile.Crc32c))
+                        {
+                            Debug.WriteLine($"Updating file: {cloudFile.Name}");
+                            await _fileUpdateHelpers.DownloadFileAsync(cloudFile.MediaLink, localFilePath);
+                        }
+                        else
+                        {
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
+                }
+            }
             Debug.WriteLine("PlayButton_Click end");
         }
 

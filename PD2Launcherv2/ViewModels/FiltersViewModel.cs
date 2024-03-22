@@ -20,7 +20,6 @@ namespace PD2Launcherv2.ViewModels
         private readonly FilterHelpers _filterHelpers;
         private readonly ILocalStorage _localStorage;
         public RelayCommand SaveFilterCommand { get; private set; }
-        public RelayCommand ViewReadmeCommand { get; private set; }
         public RelayCommand OpenAuthorsPageCommand { get; private set; }
 
         private List<FilterAuthor> _authorsList;
@@ -103,7 +102,6 @@ namespace PD2Launcherv2.ViewModels
             AuthorCall = new RelayCommand(async () => await AuthorCall_Click());
             FilterCall = new RelayCommand(FilterCall_Click);
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
-            ViewReadmeCommand = new RelayCommand(ViewReadmeExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
         }
 
@@ -256,8 +254,15 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        private void OpenAuthorsPageExecute()
+        private async void OpenAuthorsPageExecute()
         {
+            SelectedAuthorAndFilter authorAndFilter = new SelectedAuthorAndFilter
+            {
+                selectedAuthor = _selectedAuthor,
+                selectedFilter = _selectedFilter,
+            };
+            await _filterHelpers.CheckAndUpdateFilterAsync(authorAndFilter);
+
             if (SelectedAuthor != null && !string.IsNullOrEmpty(SelectedAuthor.Url))
             {
                 string modifiedUrl = SelectedAuthor.Url
@@ -279,40 +284,6 @@ namespace PD2Launcherv2.ViewModels
             {
                 Debug.WriteLine($"Failed to open URL: {url}. Error: {ex.Message}");
                 // Optionally, inform the user that opening the URL failed.
-            }
-        }
-
-        private void ViewReadmeExecute()
-        {
-            // Find README.md in the filter list
-            var readmeFile = FiltersList.FirstOrDefault(f => f.Name.Equals("README.md", StringComparison.OrdinalIgnoreCase));
-
-            if (readmeFile != null)
-            {
-                // If README.md exists, open it. This example uses the default system application.
-                try
-                {
-                    // If readme is a local file
-                    if (File.Exists(readmeFile.Path))
-                    {
-                        Process.Start(new ProcessStartInfo(readmeFile.Path) { UseShellExecute = true });
-                    }
-                    // If readme is a URL
-                    else if (!string.IsNullOrEmpty(readmeFile.Url))
-                    {
-                        Process.Start(new ProcessStartInfo(readmeFile.HtmlUrl) { UseShellExecute = true });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Handle errors (e.g., no application associated with .md files)
-                    Debug.WriteLine($"Error opening README.md: {ex.Message}");
-                }
-            }
-            else
-            {
-                // Handle case where README.md does not exist in the list
-                Debug.WriteLine("README.md not found in the filters list.");
             }
         }
     }
