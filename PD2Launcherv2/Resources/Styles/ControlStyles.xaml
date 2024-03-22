@@ -3,6 +3,7 @@
                     xmlns:local="clr-namespace:PD2Launcherv2.CustomControl">
 
     <!-- Image Button -->
+
     <Style TargetType="{x:Type local:CustomImageButton}">
         <Setter Property="Template">
             <Setter.Value>
@@ -19,6 +20,43 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="CustomColorChangeButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource GoldBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource BlackBrush}" />
+        <Setter Property="FontFamily" Value="{StaticResource BlizzMedium}" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Margin" Value="0,0,0,50" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="BorderThickness" Value="2" />
+        <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}" />
+        <!-- Define the default appearance of the button, including any borders, padding, etc. -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{TemplateBinding Background}" 
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        CornerRadius="5">
+                        <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Change background and foreground when the button is pressed -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="{StaticResource ShakoBrush}" />
+                            <Setter Property="Foreground" Value="{StaticResource BlackBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">
@@ -47,14 +85,79 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <!-- Custom hover effect using the 'SHAKO' color -->
                             <Setter Property="BorderBrush" Value="{StaticResource ShakoBrush}" />
+                            <Setter Property="Foreground" Value="Black"/>
                             <Setter Property="BorderThickness" Value="2.5" />
                         </Trigger>
-                        <!-- ... other triggers if needed ... -->
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="CustomVerticalScrollBar" TargetType="{x:Type ScrollBar}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <RepeatButton Grid.Row="0" Command="ScrollBar.LineUpCommand" 
+                                  Content="UP" 
+                                  Background="Black"
+                                  Foreground="{StaticResource GoldBrush}" 
+                                  Width="18" Height="18">
+                            <RepeatButton.ContentTemplate>
+                                <DataTemplate>
+                                    <Image Source="/Resources/Images/thin_prev.jpg"/>
+                                </DataTemplate>
+                            </RepeatButton.ContentTemplate>
+                        </RepeatButton>
+                        <Track Grid.Row="1" Name="PART_Track" IsDirectionReversed="true">
+                            <Track.Thumb>
+                                <Thumb Background="{StaticResource ShakoBrush}" BorderBrush="{StaticResource GoldBrush}" Foreground="Black"/>
+                            </Track.Thumb>
+                        </Track>
+                        <RepeatButton Grid.Row="2" Command="ScrollBar.LineDownCommand" 
+                                  Content="DOWN" 
+                                  Background="Black"
+                                  Foreground="{StaticResource GoldBrush}" 
+                                  Width="18" Height="18">
+                            <RepeatButton.ContentTemplate>
+                                <DataTemplate>
+                                    <Image Source="/Resources/Images/thin_next.jpg"/>
+                                </DataTemplate>
+                            </RepeatButton.ContentTemplate>
+                        </RepeatButton>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CustomListBoxItemStyle" TargetType="ListBoxItem">
+    <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+        <Setter.Value>
+            <ControlTemplate TargetType="ListBoxItem">
+                <Border Name="Border" Background="{TemplateBinding Background}"
+                        Padding="2" SnapsToDevicePixels="true">
+                    <ContentPresenter />
+                </Border>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsSelected" Value="true">
+                        <Setter TargetName="Border" Property="Background" Value="{StaticResource ShakoBrush}" />
+                        <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="Foreground" Value="Black"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
+
 </ResourceDictionary>

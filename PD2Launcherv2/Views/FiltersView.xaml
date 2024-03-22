@@ -7,12 +7,11 @@
       Width="750" Height="550"
       mc:Ignorable="d" 
       Title="FiltersView"
+      Loaded="FiltersView_Loaded"
       DataContext="{Binding FiltersViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Grid>
         <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
-
-        <!-- Your options controls go here -->
 
         <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" 
             FontSize="25" Content="X" />
@@ -21,9 +20,81 @@
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
 
-        <StackPanel>
-            <Button x:Name="AuthorCall" Content="AuthorCall" Width="50" Height="35" Command="{Binding AuthorCall}"></Button>
-            <Button x:Name="FilterCall" Content="FilterCall" Width="50" Height="35" Command="{Binding FilterCall}"></Button>
+        <!-- Author List-->
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,70,0,0">
+            <TextBlock Text="Authors" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}"/>
+            <ListBox x:Name="AuthorsListBox"
+                     ItemsSource="{Binding AuthorsList}"
+                     ItemContainerStyle="{StaticResource CustomListBoxItemStyle}"
+                     FontFamily="{StaticResource BlizzMedium}"
+                     FontSize="18"
+                     DisplayMemberPath="Author"
+                     Background="Black"
+                     BorderBrush="{StaticResource GoldBrush}"
+                     BorderThickness="2"
+                     Height="400" Width="200"
+                     SelectedItem="{Binding SelectedAuthor, Mode=TwoWay}"
+                     FocusVisualStyle="{x:Null}"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.Resources>
+                    <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CustomVerticalScrollBar}"/>
+                </ListBox.Resources>
+            </ListBox>
         </StackPanel>
+
+        <!-- Filter List-->
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,70,0,0">
+            <TextBlock Text="{Binding SelectedAuthor.Name}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}"/>
+            <ListBox x:Name="FiltersListBox"
+                     ItemsSource="{Binding FiltersList}"
+                     ItemContainerStyle="{StaticResource CustomListBoxItemStyle}"
+                     FontFamily="{StaticResource BlizzLight}"
+                     FontSize="16"
+                     DisplayMemberPath="Name"
+                     FocusVisualStyle="{x:Null}"
+                     Background="Black"
+                     BorderBrush="{StaticResource GoldBrush}"
+                     BorderThickness="2"
+                     Height="400" Width="300"
+                     SelectedItem="{Binding SelectedFilter, Mode=TwoWay}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.Resources>
+                    <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CustomVerticalScrollBar}"/>
+                </ListBox.Resources>
+            </ListBox>
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,15,0">
+            <Button Content="Save Filter"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding SaveFilterCommand}"
+                    Background="{StaticResource GoldBrush}"
+                    Foreground="{StaticResource BlackBrush}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="22"
+                    Margin="0,0,0,50"
+                    />
+            <Button Content="View Readme"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding ViewReadmeCommand}"
+                    Background="{StaticResource GoldBrush}"
+                    Foreground="{StaticResource BlackBrush}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="22"
+                    Margin="0,0,0,50"
+                    />
+            <Button Content="Authors Page"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding OpenAuthorsPageCommand}"
+                    Background="{StaticResource GoldBrush}"
+                    Foreground="{StaticResource BlackBrush}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="22"
+                    Margin="0,0,0,50"
+                    />
+            </StackPanel>
     </Grid>
 </Page>

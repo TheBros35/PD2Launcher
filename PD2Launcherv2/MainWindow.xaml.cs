@@ -3,10 +3,13 @@ using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
+using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Views;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 namespace PD2Launcherv2
 {
@@ -15,10 +18,18 @@ namespace PD2Launcherv2
     /// </summary>
     public partial class MainWindow : Window
     {
+        private readonly ILocalStorage _localStorage;
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
         public ICommand OpenDonateCommand { get; private set; }
         public ICommand OpenAboutCommand { get; private set; }
+        public ICommand OpenHomeCommand { get; set; }
+        public ICommand OpenTradeCommand { get; set; }
+        public ICommand OpenRedditCommand { get; set; }
+        public ICommand OpenTwitterCommand { get; set; }
+        public ICommand OpenDiscordCommand { get; set; }
+        public ICommand OpenWikiCommand { get; set; }
+
 
         public MainWindow()
         {
@@ -27,11 +38,10 @@ namespace PD2Launcherv2
             OpenOptionsCommand = new RelayCommand(ShowOptionsView);
             OpenLootCommand = new RelayCommand(ShowLootView);
             OpenAboutCommand = new RelayCommand(ShowAboutView);
+            _localStorage = (ILocalStorage)App.ServiceProvider.GetService(typeof(ILocalStorage));
 
             // Registering to receive NavigationMessage
             Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
-
-
             DataContext = this;
         }
         private void OnNavigationMessageReceived(NavigationMessage message)
@@ -103,6 +113,15 @@ namespace PD2Launcherv2
             MainFrame.Navigate(new AboutView());
         }
 
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            // Use the ProcessStartInfo class to open the link in the default browser
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+
+            // Prevent the default behavior of opening the link
+            e.Handled = true;
+        }
+
         private void DonateButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("DonateButton_Click start");
@@ -123,5 +142,12 @@ namespace PD2Launcherv2
             Debug.WriteLine("MinimizeButton_Click end");
         }
 
+        private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is TextBlock textBlock && textBlock.Tag is string url)
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+            }
+        }
     }
 }
