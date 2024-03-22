@@ -90,5 +90,38 @@
                     Margin="0,0,0,50"
                     />
         </StackPanel>
+
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,15,0">
+            <Button Content="Save Filter"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding SaveFilterCommand}"
+                    Background="{StaticResource GoldBrush}"
+                    Foreground="{StaticResource BlackBrush}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="22"
+                    Margin="0,0,0,50"
+                    />
+            <Button Content="View Readme"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding ViewReadmeCommand}"
+                    Background="{StaticResource GoldBrush}"
+                    Foreground="{StaticResource BlackBrush}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="22"
+                    Margin="0,0,0,50"
+                    />
+            <Button Content="Authors Page"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding OpenAuthorsPageCommand}"
+                    Background="{StaticResource GoldBrush}"
+                    Foreground="{StaticResource BlackBrush}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="22"
+                    Margin="0,0,0,50"
+                    />
+            </StackPanel>
     </Grid>
 </Page>

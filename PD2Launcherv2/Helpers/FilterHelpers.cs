@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
 using System.Diagnostics;

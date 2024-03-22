@@ -1,4 +1,4 @@
-﻿
+
 namespace PD2Launcherv2.Models
 {
     public class Pd2AuthorList
