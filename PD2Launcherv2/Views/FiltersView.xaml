@@ -34,6 +34,7 @@
                      BorderThickness="2"
                      Height="400" Width="200"
                      SelectedItem="{Binding SelectedAuthor, Mode=TwoWay}"
+                     FocusVisualStyle="{x:Null}"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.Resources>
                     <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CustomVerticalScrollBar}"/>
