@@ -21,7 +21,6 @@
         </Setter>
     </Style>
 
-
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="Transparent"/>
@@ -123,7 +122,5 @@
         </Setter.Value>
     </Setter>
 </Style>
-
-
 
 </ResourceDictionary>

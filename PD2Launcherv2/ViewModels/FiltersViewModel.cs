@@ -55,15 +55,15 @@ namespace PD2Launcherv2.ViewModels
                 OnPropertyChanged();
             }
         }
-        private FilterAuthor _selectedFilter;
-        public FilterAuthor SelectedFilter
+        private FilterFile _selectedFilter;
+        public FilterFile SelectedFilter
         {
-            get => _selectedAuthor;
+            get => _selectedFilter;
             set
             {
-                if (_selectedAuthor != value)
+                if (_selectedFilter != value)
                 {
-                    _selectedAuthor = value;
+                    _selectedFilter = value;
                     OnPropertyChanged();
                 }
             }
