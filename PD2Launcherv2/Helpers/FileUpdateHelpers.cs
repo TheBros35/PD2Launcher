@@ -1,4 +1,5 @@
 ﻿using Force.Crc32;
+using PD2Launcherv2.Interfaces;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -10,12 +11,10 @@ namespace PD2Launcherv2.Helpers
     internal class FileUpdateHelpers
     {
         private readonly HttpClient _httpClient;
-        private readonly string stringToFilePath;
 
-        public FileUpdateHelpers(String filePath, HttpClient httpClient)
+        public FileUpdateHelpers(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            stringToFilePath = filePath;
         }
 
         public async Task<List<CloudFileItem>> GetCloudFileMetadataAsync(string cloudFileBucket)
@@ -25,7 +24,6 @@ namespace PD2Launcherv2.Helpers
             Debug.WriteLine($"code: {response.StatusCode}");
 
             var content = await response.Content.ReadAsStringAsync();
-            Debug.WriteLine($"Response Content: {content}");
 
             var options = new JsonSerializerOptions
             {

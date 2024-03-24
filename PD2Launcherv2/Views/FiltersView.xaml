@@ -19,6 +19,14 @@
                    VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0"
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
+        <Button Content="Help"
+        Style="{StaticResource CustomColorChangeButton}"
+        Command="{Binding OpenHelpPageCommand}"
+        FontFamily="{StaticResource BlizzMedium}"
+        FocusVisualStyle="{x:Null}"
+        FontSize="12"
+        HorizontalAlignment="Center" VerticalAlignment="Top"
+        Margin="180,30,0,0"/>
 
         <!-- Author List-->
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,70,0,0">
@@ -64,29 +72,22 @@
             </ListBox>
         </StackPanel>
 
-        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,15,0">
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,35,0">
             <Button Content="Save Filter"
                     Style="{StaticResource CustomColorChangeButton}"
                     Command="{Binding SaveFilterCommand}"
                     FontFamily="{StaticResource BlizzMedium}"
                     FocusVisualStyle="{x:Null}"
-                    FontSize="22"
+                    FontSize="18"
                     Margin="0,0,0,50"
                     />
-            <Button Content="View Readme"
-                    Style="{StaticResource CustomColorChangeButton}"
-                    Command="{Binding ViewReadmeCommand}"
-                    FontFamily="{StaticResource BlizzMedium}"
-                    FocusVisualStyle="{x:Null}"
-                    FontSize="22"
-                    Margin="0,0,0,50"
-                    />
+            
             <Button Content="Authors Page"
                     Style="{StaticResource CustomColorChangeButton}"
                     Command="{Binding OpenAuthorsPageCommand}"
                     FontFamily="{StaticResource BlizzMedium}"
                     FocusVisualStyle="{x:Null}"
-                    FontSize="22"
+                    FontSize="18"
                     Margin="0,0,0,50"
                     />
         </StackPanel>

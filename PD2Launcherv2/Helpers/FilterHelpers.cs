@@ -57,8 +57,7 @@ namespace PD2Launcherv2.Helpers
                     var allFiles = JsonConvert.DeserializeObject<List<FilterFile>>(content);
                     Debug.WriteLine($"content: {content}");
                     Debug.WriteLine($"allFiles: {allFiles}");
-                    // Filter the list to include only .filter files and README.md
-                    var filterFiles = allFiles.Where(f => f.Name.EndsWith(".filter") || f.Name.Equals("README.md", StringComparison.OrdinalIgnoreCase)).ToList();
+                    var filterFiles = allFiles.Where(f => f.Name.EndsWith(".filter")).ToList();
                     Debug.WriteLine($"filterFiles {filterFiles}");
                     return filterFiles;
                 }
@@ -225,6 +224,47 @@ namespace PD2Launcherv2.Helpers
             {
                 Debug.WriteLine($"Error applying loot filter: {ex.Message}");
                 return false;
+            }
+        }
+
+        public async Task<bool> CheckAndUpdateFilterAsync(SelectedAuthorAndFilter selected)
+        {
+            try
+            {
+                // Use GetFilterListAsync to ensure User-Agent is set and to handle request consistently
+                var filterListResponse = await GetFilterListAsync(selected.selectedAuthor.Url);
+                Debug.WriteLine($"Response Status: {filterListResponse.StatusCode}");
+
+                if (!filterListResponse.IsSuccessStatusCode)
+                {
+                    return false;
+                }
+
+                var filterListContent = await filterListResponse.Content.ReadAsStringAsync();
+                var filters = JsonConvert.DeserializeObject<List<FilterFile>>(filterListContent);
+
+                var targetFilter = filters?.FirstOrDefault(f => f.Name.Equals(selected.selectedFilter.Name, StringComparison.OrdinalIgnoreCase));
+                if (targetFilter == null)
+                {
+                    return false;
+                }
+
+                Debug.WriteLine($"Target SHA: {targetFilter.Sha}, Selected SHA: {selected.selectedFilter.Sha}");
+                if (targetFilter.Sha.Equals(selected.selectedFilter.Sha, StringComparison.OrdinalIgnoreCase))
+                {
+                    Debug.WriteLine("The filter is up-to-date.");
+                    return true;
+                }
+                return await ApplyLootFilterAsync(selected.selectedAuthor.Name, selected.selectedFilter.Name, targetFilter.DownloadUrl);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error checking and updating filter: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                Debug.WriteLine("CheckAndUpdateFilterAsync end");
             }
         }
     }

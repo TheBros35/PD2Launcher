@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Storage;
 using PD2Launcherv2.ViewModels;
+using System.Net.Http;
 using System.Windows;
 
 namespace PD2Launcherv2
@@ -42,6 +44,10 @@ namespace PD2Launcherv2
             // Registers the LocalStorage service with its interface for dependency injection.
             // This makes LocalStorage available throughout the application via DI.
             services.AddSingleton<ILocalStorage, LocalStorage>();
+            services.AddSingleton<FilterHelpers>();
+            services.AddSingleton<HttpClient>();
+            services.AddSingleton<FileUpdateHelpers>(provider =>
+        new FileUpdateHelpers( provider.GetRequiredService<HttpClient>()));
             services.AddTransient<OptionsViewModel>();
             services.AddTransient<AboutViewModel>();
             services.AddTransient<FiltersViewModel>();
