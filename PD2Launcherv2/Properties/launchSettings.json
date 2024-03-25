@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PD2Launcherv2": {
+      "commandName": "Project",
+      "workingDirectory": "E:\\Diablo II\\ProjectD2Test"
+    }
+  }
+}

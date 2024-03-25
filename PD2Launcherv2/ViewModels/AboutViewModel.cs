@@ -54,7 +54,7 @@ namespace PD2Launcherv2.ViewModels
             var fileUpdateModel = new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
-                FilePath = "E:\\Games\\Blizzard\\d2\\Diablo II\\ProjectD2"
+                FilePath = "Live"
             };
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
             Debug.WriteLine("end ProdBucketAssign\n");
@@ -65,7 +65,7 @@ namespace PD2Launcherv2.ViewModels
             var fileUpdateModel = new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-beta-client-files/o",
-                FilePath = "E:\\Games\\Blizzard\\d2\\Diablo II\\ProjectD2Beta"
+                FilePath = "Beta"
             };
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
             Debug.WriteLine("end BetaBucketAssign \n");
@@ -74,7 +74,14 @@ namespace PD2Launcherv2.ViewModels
         {
             Debug.WriteLine("\nstart UpdateFilesCheck");
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-            if (fileUpdateModel != null && Directory.Exists(fileUpdateModel.FilePath))
+            var installPath = Directory.GetCurrentDirectory();
+            var fullUpdatePath = Path.Combine(installPath, fileUpdateModel.FilePath);
+            if (!Directory.Exists(fullUpdatePath))
+            {
+                Directory.CreateDirectory(fullUpdatePath);
+            }
+
+            if (fileUpdateModel != null)
             {
                 var cloudFileItems = await _fileUpdateHelpers.GetCloudFileMetadataAsync(fileUpdateModel.Client);
 
@@ -84,7 +91,7 @@ namespace PD2Launcherv2.ViewModels
                     if (cloudFile.Name.EndsWith("/"))
                     {
                         // Ensure the directory structure is created for directory markers
-                        var directPath = Path.Combine(fileUpdateModel.FilePath, cloudFile.Name.TrimEnd('/'));
+                        var directPath = Path.Combine(fullUpdatePath, cloudFile.Name.TrimEnd('/'));
                         if (!Directory.Exists(directPath))
                         {
                             Directory.CreateDirectory(directPath);
@@ -98,7 +105,7 @@ namespace PD2Launcherv2.ViewModels
                         continue;
                     }
 
-                    var localFilePath = Path.Combine(fileUpdateModel.FilePath, cloudFile.Name);
+                    var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
 
                     // Ensure the directory for the file exists
                     var directoryPath = Path.GetDirectoryName(localFilePath);
@@ -107,14 +114,25 @@ namespace PD2Launcherv2.ViewModels
                         Directory.CreateDirectory(directoryPath);
                     }
 
+                    var installFilePath = Path.Combine(installPath, cloudFile.Name);
+                    var installDirectoryPath = Path.GetDirectoryName(installFilePath);
+                    if (!Directory.Exists(installDirectoryPath))
+                    {
+                        Directory.CreateDirectory(installDirectoryPath);
+                    }
+
                     // Download and update the file if needed
-                    if (!_fileUpdateHelpers.CompareCRC(localFilePath, cloudFile.Crc32c))
+                    if (!File.Exists(localFilePath) || !_fileUpdateHelpers.CompareCRC(localFilePath, cloudFile.Crc32c))
                     {
                         Debug.WriteLine($"Updating file: {cloudFile.Name}");
                         await _fileUpdateHelpers.DownloadFileAsync(cloudFile.MediaLink, localFilePath);
+                        // Copy the file to parent ProjectD2 folder
+                        File.Copy(localFilePath, installFilePath, true);
                     }
                     else
                     {
+                        // Copy the file to parent ProjectD2 folder
+                        File.Copy(localFilePath, installFilePath, true);
                     }
                 }
             }
