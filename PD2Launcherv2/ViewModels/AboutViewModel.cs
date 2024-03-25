@@ -8,6 +8,7 @@ using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -22,6 +23,8 @@ namespace PD2Launcherv2.ViewModels
         public RelayCommand BetaBucket { get; private set; }
         public RelayCommand UpdateFilesCall { get; private set; }
         public RelayCommand ReadStorageCall { get; private set; }
+        private readonly List<string> _excludedFiles = new List<string>
+        { "D2.LNG", "BnetLog.txt", "ProjectDiablo.cfg", "ddraw.ini", "default.filter", "loot.filter", "UI.ini", "d2gl.yaml"};
 
         public AboutViewModel(ILocalStorage localStorage)
         {
@@ -34,6 +37,14 @@ namespace PD2Launcherv2.ViewModels
             ReadStorageCall = new RelayCommand(ReadStorageCheck);
 
             CloseCommand = new RelayCommand(CloseView);
+        }
+
+        private bool IsFileExcluded(string fileName)
+        {
+            return _excludedFiles.Any(excluded =>
+                excluded.EndsWith("/*") && fileName.StartsWith(excluded.TrimEnd('*', '/')) ||
+                excluded.Equals(fileName, StringComparison.OrdinalIgnoreCase) ||
+                (excluded.Contains("*") && new Regex("^" + Regex.Escape(excluded).Replace("\\*", ".*") + "$").IsMatch(fileName)));
         }
 
 
@@ -78,6 +89,12 @@ namespace PD2Launcherv2.ViewModels
                         {
                             Directory.CreateDirectory(directPath);
                         }
+                        continue;
+                    }
+
+                    if (IsFileExcluded(cloudFile.Name))
+                    {
+                        Debug.WriteLine($"Skipping excluded file: {cloudFile.Name}");
                         continue;
                     }
 
