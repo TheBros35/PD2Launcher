@@ -173,18 +173,11 @@ namespace PD2Launcherv2.Helpers
         {
             try
             {
-                var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-                if (fileUpdateModel == null || string.IsNullOrWhiteSpace(fileUpdateModel.FilePath))
-                {
-                    Debug.WriteLine("Base path is not set.");
-                    return false;
-                }
-
-                string basePath = fileUpdateModel.FilePath;
-                string filtersBasePath = Path.Combine(basePath, "filters");
+                string installPath = Directory.GetCurrentDirectory();
+                string filtersBasePath = Path.Combine(installPath, "filters");
                 string localPath = Path.Combine(filtersBasePath, "local");
                 string onlinePath = Path.Combine(filtersBasePath, "online");
-                string defaultFilterPath = Path.Combine(basePath, "loot.filter");
+                string defaultFilterPath = Path.Combine(installPath, "loot.filter");
 
                 // Ensure necessary directories exist
                 Directory.CreateDirectory(localPath);
@@ -211,11 +204,9 @@ namespace PD2Launcherv2.Helpers
                 }
 
                 // Create or update the symbolic link for the loot filter
-                if (File.Exists(defaultFilterPath))
-                {
-                    File.Delete(defaultFilterPath);
-                }
-                File.CreateSymbolicLink(defaultFilterPath, targetFilterPath);
+                File.Copy(targetFilterPath, defaultFilterPath, true);
+                // Symlink requires admin
+                //File.CreateSymbolicLink(defaultFilterPath, targetFilterPath);
 
                 Debug.WriteLine("Filter applied successfully.");
                 return true;
