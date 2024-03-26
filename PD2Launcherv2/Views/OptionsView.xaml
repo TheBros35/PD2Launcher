@@ -52,7 +52,7 @@
 
                 <StackPanel Visibility="{Binding DDrawControlsVisible}">
                     <TextBlock Text="Mode" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                    <ComboBox x:Name="Mode" FocusVisualStyle="{x:Null}" HorizontalAlignment="Left" ItemsSource="{Binding OptionsModePicker}"
+                    <ComboBox x:Name="Mode" Style="{StaticResource CustomComboBoxStyle}" HorizontalAlignment="Left" ItemsSource="{Binding OptionsModePicker}"
                             Width="175"
                             SelectedValuePath="ActualValue" 
                             DisplayMemberPath="DisplayValue" 
