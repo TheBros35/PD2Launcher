@@ -25,6 +25,7 @@ namespace PD2Launcherv2
         private readonly ILocalStorage _localStorage;
         private readonly FileUpdateHelpers _fileUpdateHelpers;
         private readonly FilterHelpers _filterHelpers;
+        private readonly LaunchGameHelpers _launchGameHelpers;
         public bool IsBeta { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
@@ -45,8 +46,10 @@ namespace PD2Launcherv2
             OpenLootCommand = new RelayCommand(ShowLootView);
             OpenAboutCommand = new RelayCommand(ShowAboutView);
             _localStorage = (ILocalStorage)App.ServiceProvider.GetService(typeof(ILocalStorage));
+            InitializeDefaultSettings(_localStorage);
             _fileUpdateHelpers = (FileUpdateHelpers)App.ServiceProvider.GetService(typeof(FileUpdateHelpers));
             _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
+            _launchGameHelpers = (LaunchGameHelpers)App.ServiceProvider.GetService(typeof(LaunchGameHelpers));
             LoadConfiguration();
 
         // Registering to receive NavigationMessage
@@ -117,7 +120,7 @@ namespace PD2Launcherv2
             // Optionally reset the play button image after updates are completed
             var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
             PlayButton.NormalImageSource = new BitmapImage(playImageUri);
-
+            _launchGameHelpers.LaunchGame(_localStorage);
             Debug.WriteLine("PlayButton_Click end");
         }
 
@@ -198,6 +201,16 @@ namespace PD2Launcherv2
         {
             // Update UI based on the message content
             BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public void InitializeDefaultSettings(ILocalStorage localStorage)
+        {
+            _localStorage.InitializeIfNotExists<FileUpdateModel>(StorageKey.FileUpdateModel, new FileUpdateModel());
+            _localStorage.InitializeIfNotExists<DdrawOptions>(StorageKey.DdrawOptions, new DdrawOptions());
+            _localStorage.InitializeIfNotExists<LauncherArgs>(StorageKey.LauncherArgs, new LauncherArgs());
+            _localStorage.InitializeIfNotExists<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter, new SelectedAuthorAndFilter());
+            _localStorage.InitializeIfNotExists<Pd2AuthorList>(StorageKey.Pd2AuthorList, new Pd2AuthorList());
+            _localStorage.InitializeIfNotExists<News>(StorageKey.News, new News());
         }
     }
 }

@@ -72,5 +72,14 @@ namespace PD2Launcherv2.Storage
                 _ => default,
             };
         }
+
+        public void InitializeIfNotExists<T>(StorageKey key, T defaultValue) where T : class, new()
+        {
+            var existingValue = LoadSection<T>(key);
+            if (existingValue == null)
+            {
+                Update(key, defaultValue);
+            }
+        }
     }
 }

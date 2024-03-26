@@ -12,5 +12,7 @@ namespace PD2Launcherv2.Interfaces
 
         //load a setting bucket by keyname
         T LoadSection<T>(StorageKey key) where T : class;
+
+        void InitializeIfNotExists<T>(StorageKey key, T defaultValue) where T : class, new();
     }
 }

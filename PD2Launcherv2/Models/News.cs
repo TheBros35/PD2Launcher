@@ -4,7 +4,7 @@ namespace PD2Launcherv2.Models
 {
     public class News
     {
-        public string ETag { get; set; }
+        public string ETag { get; set; } = "null";
         public List<NewsItem> news { get; set; }
     }
 
@@ -27,6 +27,5 @@ namespace PD2Launcherv2.Models
 
         [JsonProperty("link")]
         public string Link { get; set; }
-
     }
 }

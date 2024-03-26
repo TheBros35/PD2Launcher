@@ -46,6 +46,7 @@ namespace PD2Launcherv2
             services.AddSingleton<ILocalStorage, LocalStorage>();
             services.AddSingleton<FilterHelpers>();
             services.AddSingleton<HttpClient>();
+            services.AddSingleton<LaunchGameHelpers>();
             services.AddSingleton<FileUpdateHelpers>(provider =>
             new FileUpdateHelpers( provider.GetRequiredService<HttpClient>()));
             services.AddTransient<OptionsViewModel>();
