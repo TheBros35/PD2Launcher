@@ -12,14 +12,8 @@ namespace PD2Launcherv2.Helpers
         public void LaunchGame(ILocalStorage localStorage)
         {
             var fileUpdateModel = localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-            string environmentFilePath = fileUpdateModel?.FilePath ?? "Live";
 
-            string diabloIIExePath = Path.Combine(Directory.GetCurrentDirectory(), environmentFilePath, "Diablo II.exe");
-            Debug.WriteLine($"{environmentFilePath}");
-            Debug.WriteLine($"\ndiabloIIExePath{diabloIIExePath}");
-            Debug.WriteLine($"diabloIIExePath{diabloIIExePath}");
-            Debug.WriteLine($"diabloIIExePath{diabloIIExePath}");
-            Debug.WriteLine($"diabloIIExePath{diabloIIExePath}\n");
+            string diabloIIExePath = Path.Combine(Directory.GetCurrentDirectory(), "Game.exe");
 
             LauncherArgs launcherArgs = localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
 
