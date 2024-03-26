@@ -49,10 +49,24 @@ namespace PD2Launcherv2
             LoadNews();
             LoadConfiguration();
 
-        // Registering to receive NavigationMessage
-        Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
-        Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
+            // Registering to receive NavigationMessage
+            Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
+            Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
             DataContext = this;
+
+            // Load or setup default file update model
+            FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
+            {
+                Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
+                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-beta-launcher-update/o",
+                FilePath = "Live"
+            };
+
+            // Don't try to update launcher in debug mode
+#if DEBUG
+#else
+            _fileUpdateHelpers?.UpdateLauncherCheck(_localStorage);
+#endif
         }
 
         private void OnNavigationMessageReceived(NavigationMessage message)
@@ -106,12 +120,9 @@ namespace PD2Launcherv2
             FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
+                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-launcher-update/o",
                 FilePath = "Live"
             };
-            if (storeUpdate.Client is null)
-            {
-                _localStorage.Update(StorageKey.FileUpdateModel, storeUpdate);
-            }
 
             await _fileUpdateHelpers.UpdateFilesCheck(_localStorage);
 

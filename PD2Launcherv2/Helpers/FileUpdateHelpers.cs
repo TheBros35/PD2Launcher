@@ -133,6 +133,72 @@ namespace PD2Launcherv2.Helpers
             Debug.WriteLine("end UpdateFilesCheck \n");
         }
 
+        public async Task UpdateLauncherCheck(ILocalStorage _localStorage)
+        {
+            Debug.WriteLine("\nstart UpdateLauncherCheck");
+            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            var installPath = Directory.GetCurrentDirectory();
+
+            if (fileUpdateModel != null)
+            {
+                var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Launcher);
+
+                foreach (var cloudFile in cloudFileItems)
+                {
+                    if (cloudFile.Name.EndsWith("/")) // Skip directory markers so I dont try to download a folder
+                    {
+                        var directPath = Path.Combine(installPath, cloudFile.Name.TrimEnd('/'));
+                        Directory.CreateDirectory(directPath);
+                        continue;
+                    }
+
+                    var localFilePath = Path.Combine(installPath, cloudFile.Name);
+                    var launcherNeedsUpdate = false;
+
+                    // Download and update the file if needed, and not excluded or does not exist
+                    if (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c))
+                    {
+                        // Launcher update found
+                        if (cloudFile.Name == "PD2Launcher.exe")
+                        {
+                            // Update after downloading the updater.exe
+                            launcherNeedsUpdate = true;
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"Updating file: {cloudFile.Name}");
+                            await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
+                        }
+                    }
+
+                    if (launcherNeedsUpdate)
+                    {
+                        var updaterPath = Path.Combine(installPath, "updater.exe");
+                        if (File.Exists(updaterPath))
+                        {
+                            // Launch the updater and kill current process
+                            var startInfo = new ProcessStartInfo
+                            {
+                                FileName = updaterPath,
+                                Arguments = "/l",
+                                WorkingDirectory = installPath
+                            };
+
+                            if (Process.Start(startInfo) != null)
+                            {
+                                System.Environment.Exit(0);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
+            }
+            Debug.WriteLine("end UpdateLauncherCheck \n");
+        }
+
         private bool IsFileExcluded(string fileName)
         {
             return _excludedFiles.Any(excluded =>
