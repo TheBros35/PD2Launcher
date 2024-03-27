@@ -15,9 +15,14 @@ namespace PD2Launcherv2.ViewModels
     public class OptionsViewModel : ViewModelBase
     {
         private readonly ILocalStorage _localStorage;
+        private readonly string SetWindowsPermissionsScript = "SetPD2WindowsSettings.ps1";
+        private readonly string RemoveWindowsPermissionsScript = "RemovePD2WindowsSettings.ps1";
+
         public Dictionary<string, bool> CheckboxStates { get; set; }
 
         public RelayCommand ToggleAdvancedOptionsCommand { get; }
+        public RelayCommand SetWindowsPermissionsCommand { get; }
+        public RelayCommand RemoveWindowsPermissionsCommand { get; }
 
         public OptionsViewModel(ILocalStorage localStorage)
         {
@@ -36,6 +41,8 @@ namespace PD2Launcherv2.ViewModels
             DealWithLoadingModeComboBox(_localStorage);
             CloseCommand = new RelayCommand(CloseView);
             ToggleAdvancedOptionsCommand = new RelayCommand(ToggleAdvancedOptions);
+            SetWindowsPermissionsCommand = new RelayCommand(SetWindowsPermissions);
+            RemoveWindowsPermissionsCommand = new RelayCommand(RemoveWindowsPermissions);
         }
 
         public Visibility NonFullScreenVisibility
@@ -121,6 +128,28 @@ namespace PD2Launcherv2.ViewModels
         private void ToggleAdvancedOptions()
         {
             ShowAdvancedOptions = !ShowAdvancedOptions;
+        }
+
+        private void SetWindowsPermissions()
+        {
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{SetWindowsPermissionsScript}\"",
+                UseShellExecute = false
+            };
+            Process.Start(startInfo);
+        }
+
+        private void RemoveWindowsPermissions()
+        {
+            var startInfo = new ProcessStartInfo()
+            {
+                FileName = "powershell.exe",
+                Arguments = $"-NoProfile -ExecutionPolicy ByPass -File \"{RemoveWindowsPermissionsScript}\"",
+                UseShellExecute = false
+            };
+            Process.Start(startInfo);
         }
 
         private List<DisplayValuePair> _maxGameTicksPickerItems;
