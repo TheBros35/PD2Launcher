@@ -26,7 +26,7 @@ namespace PD2Launcherv2.Helpers
             Debug.WriteLine("\nstart FetchAndStoreNewsAsync");
             try
             {
-                string newsUrl = "https://raw.githubusercontent.com/PritchardJasonR/news/main/news.json";
+                string newsUrl = "https://raw.githubusercontent.com/Project-Diablo-2/news/main/news.json";
 
                 // Load the current news data, if available
                 var currentNewsData = _localStorage.LoadSection<News>(StorageKey.News);
