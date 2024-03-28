@@ -56,6 +56,20 @@ namespace PD2Launcherv2
             Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
             Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
             DataContext = this;
+
+            // Load or setup default file update model
+            FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
+            {
+                Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
+                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-beta-launcher-update/o",
+                FilePath = "Live"
+            };
+
+            // Don't try to update launcher in debug mode
+#if DEBUG
+#else
+            _fileUpdateHelpers?.UpdateLauncherCheck(_localStorage);
+#endif
         }
 
 
