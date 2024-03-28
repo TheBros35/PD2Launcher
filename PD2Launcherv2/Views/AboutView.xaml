@@ -22,7 +22,7 @@
         </TextBlock>
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="File Update Testing" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}"></TextBlock>
+            <TextBlock Text="Switch To" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}" TextAlignment="Center"></TextBlock>
 
             <Button x:Name="PRODBucket" Content="Live" Style="{StaticResource CustomColorChangeButton}"
                     Width="200" Height="35" Margin="10" Foreground="Black"

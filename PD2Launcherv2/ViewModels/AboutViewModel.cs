@@ -45,6 +45,7 @@ namespace PD2Launcherv2.ViewModels
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
             Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = false });
             Debug.WriteLine("end ProdBucketAssign\n");
+            Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
         }
         public void BetaBucketAssign()
         {
@@ -58,6 +59,7 @@ namespace PD2Launcherv2.ViewModels
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
             Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = true });
             Debug.WriteLine("end BetaBucketAssign \n");
+            Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
         }
 
         private void CloseView()
