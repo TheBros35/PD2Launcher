@@ -191,6 +191,7 @@ namespace PD2Launcherv2.Helpers
                         var updaterPath = Path.Combine(installPath, "updater.exe");
                         if (File.Exists(updaterPath))
                         {
+                            MessageBox.Show("An update for the launcher was found!\nThe launcher will close and update now.", "Update Ready", MessageBoxButton.OK, MessageBoxImage.Information);
                             // Launch the updater and kill current process
                             var startInfo = new ProcessStartInfo
                             {
