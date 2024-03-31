@@ -1,5 +1,4 @@
-﻿
-using GalaSoft.MvvmLight.Command;
+﻿using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
@@ -49,6 +48,8 @@ namespace PD2Launcherv2
             _launchGameHelpers = (LaunchGameHelpers)App.ServiceProvider.GetService(typeof(LaunchGameHelpers));
             _newsHelpers = (NewsHelpers)App.ServiceProvider.GetService(typeof(NewsHelpers));
             LoadAndUpdateDDrawOptions();
+            InitWindow();
+            EnsureWindowIsVisible();
             Loaded += MainWindow_Loaded;
             LoadConfiguration();
 
@@ -56,6 +57,8 @@ namespace PD2Launcherv2
             Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
             Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
             DataContext = this;
+
+            this.Closed += MainWindow_Closed;
 
             // Load or setup default file update model
             FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
@@ -111,6 +114,12 @@ namespace PD2Launcherv2
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
+            // Check if Game.exe is already running
+            if (Process.GetProcessesByName("Game").Any())
+            {
+                MessageBox.Show("Game is already running.");
+                return;
+            }
             var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
             if (selectedAuthorAndFilter?.selectedFilter != null)
             {
@@ -191,6 +200,7 @@ namespace PD2Launcherv2
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
+            MainWindow_Closed(sender, e);
             this.Close();
         }
 
@@ -244,6 +254,125 @@ namespace PD2Launcherv2
             _localStorage.Update(StorageKey.DdrawOptions, currentDdrawOptions);
         }
 
+        private void NewsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is NewsItem selectedItem)
+            {
+                var uri = selectedItem.Link;
+                if (!string.IsNullOrWhiteSpace(uri))
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        // If there's an error opening the link, show an error message
+                        ShowErrorMessage($"Failed to open the link: {ex.Message}\nPlease check your internet connection or try again later.");
+                        Debug.WriteLine($"Failed to open link: {ex.Message}");
+                    }
+                }
+                // If the link is null or empty, do nothing
+
+                ((ListBox)sender).SelectedItem = null;
+            }
+        }
+
+        private void CenterWindowOnScreen()
+        {
+            var screenWidth = SystemParameters.PrimaryScreenWidth;
+            var screenHeight = SystemParameters.PrimaryScreenHeight;
+            this.Left = (screenWidth - this.Width) / 2;
+            this.Top = (screenHeight - this.Height) / 2;
+        }
+
+        private void MainWindow_Closed(object sender, EventArgs e)
+        {
+            var windowPosition = new WindowPositionModel
+            {
+                Left = this.Left,
+                Top = this.Top,
+            };
+
+            Debug.WriteLine($"\n\n Saving window position: Left = {this.Left}, Top = {this.Top} \n\n");
+
+            _localStorage.Update(StorageKey.WindowPosition, windowPosition);
+        }
+
+        private void EnsureWindowIsOnScreen()
+        {
+            try
+            {
+                var windowPosition = _localStorage.LoadSection<WindowPositionModel>(StorageKey.WindowPosition);
+                if (windowPosition != null)
+                {
+                    // Attempt to restore the window to its last saved position
+                    this.Left = windowPosition.Left;
+                    this.Top = windowPosition.Top;
+
+                    // Call the method to ensure it's visible on screen, 
+                    // it will adjust if the window is off-screen
+                    EnsureWindowIsVisible();
+                }
+                else
+                {
+                    // If there's no saved position, or loading failed, center on primary screen
+                    CenterWindowOnScreen();
+                }
+            }
+            catch (Exception ex)
+            {
+                // If any error occurs, log it, and center the window on the primary screen
+                Debug.WriteLine($"Error restoring window position: {ex.Message}");
+                CenterWindowOnScreen();
+            }
+        }
+
+        private void EnsureWindowIsVisible()
+        {
+            var windowPosition = _localStorage.LoadSection<WindowPositionModel>(StorageKey.WindowPosition);
+
+            // Check if the window is out of bounds
+            bool isOutOfBounds =
+                windowPosition.Left < SystemParameters.VirtualScreenLeft ||
+                windowPosition.Top < SystemParameters.VirtualScreenTop ||
+                windowPosition.Left > SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth ||
+                windowPosition.Top > SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight;
+
+            if (windowPosition == null || isOutOfBounds)
+            {
+                CenterWindowOnScreen();
+            }
+            else
+            {
+                // Restore the window to its last saved position
+                this.Left = windowPosition.Left;
+                this.Top = windowPosition.Top;
+            }
+        }
+
+        private void InitWindow()
+        {
+            var windowPosition = _localStorage.LoadSection<WindowPositionModel>(StorageKey.WindowPosition);
+
+            Debug.WriteLine($"\n\n Loaded window position: Left = {windowPosition?.Left}, Top = {windowPosition?.Top} \n\n");
+
+            if (windowPosition == null || (windowPosition.Left == 0 && windowPosition.Top == 0))
+            {
+                CenterWindowOnScreen();
+            }
+            else
+            {
+                this.Left = windowPosition.Left;
+                this.Top = windowPosition.Top;
+            }
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         public void InitializeDefaultSettings(ILocalStorage localStorage)
         {
             _localStorage.InitializeIfNotExists<FileUpdateModel>(StorageKey.FileUpdateModel, new FileUpdateModel());
@@ -252,6 +381,7 @@ namespace PD2Launcherv2
             _localStorage.InitializeIfNotExists<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter, new SelectedAuthorAndFilter());
             _localStorage.InitializeIfNotExists<Pd2AuthorList>(StorageKey.Pd2AuthorList, new Pd2AuthorList());
             _localStorage.InitializeIfNotExists<News>(StorageKey.News, new News());
+            _localStorage.InitializeIfNotExists<WindowPositionModel>(StorageKey.WindowPosition, new WindowPositionModel());
         }
     }
 }

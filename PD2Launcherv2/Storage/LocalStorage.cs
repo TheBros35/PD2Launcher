@@ -16,7 +16,7 @@ namespace PD2Launcherv2.Storage
         {
             string filePath = Path.Combine(_storageDirectory, StorageFileName);
             if (!File.Exists(filePath)) return new AllSettings();
-
+            Debug.WriteLine(filePath);
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<AllSettings>(json) ?? new AllSettings();
         }
@@ -40,7 +40,8 @@ namespace PD2Launcherv2.Storage
                     settings.Pd2AuthorList = value as Pd2AuthorList; break;
                 case StorageKey.News:
                     settings.News = value as News; break;
-                    // Add other cases as needed
+                case StorageKey.WindowPosition:
+                    settings.WindowPosition = value as WindowPositionModel; break;
             }
 
             // Check if the directory exists; if not, create it
@@ -65,6 +66,7 @@ namespace PD2Launcherv2.Storage
                 StorageKey.FileUpdateModel => settings.FileUpdateModel as T,
                 StorageKey.Pd2AuthorList => settings.Pd2AuthorList as T,
                 StorageKey.SelectedAuthorAndFilter => settings.SelectedAuthorAndFilter as T,
+                StorageKey.WindowPosition => settings.WindowPosition as T,
                 StorageKey.News => settings.News as T,
                 _ => default,
             };
