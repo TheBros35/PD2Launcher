@@ -73,6 +73,17 @@ namespace PD2Launcherv2
         /// <param name="e">Contains the arguments for the startup event.</param>
         protected override void OnStartup(StartupEventArgs e)
         {
+            // The name here should match the name of your application's executable without the .exe part
+            var currentProcessName = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+
+            // Check if there are any other processes with the same name as the current process
+            if (System.Diagnostics.Process.GetProcessesByName(currentProcessName).Length > 1)
+            {
+                MessageBox.Show("An instance of the launcher is already running.");
+                Application.Current.Shutdown(); // Shut down the current application instance
+                return;
+            }
+
             base.OnStartup(e);
             // Retrieves the MainWindow instance from the service provider and shows it.
             // This demonstrates how dependency injection can be used to create and manage
@@ -100,10 +111,7 @@ namespace PD2Launcherv2
 
             // Define the log file path. Consider using a more appropriate location.
             string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LauncherErrorLogs");
-            if (!Directory.Exists(logPath))
-            {
-                Directory.CreateDirectory(logPath);
-            }
+
             string logFile = Path.Combine(logPath, $"ErrorLog_{DateTime.Now:yyyy-MM-dd}.txt");
 
             // Prepare the log entry
