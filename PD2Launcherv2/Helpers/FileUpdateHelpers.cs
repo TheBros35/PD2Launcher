@@ -141,8 +141,6 @@ namespace PD2Launcherv2.Helpers
             return false;
         }
 
-
-
         public async Task UpdateFilesCheck(ILocalStorage _localStorage, IProgress<double> progress, Action onDownloadComplete)
         {
             Debug.WriteLine("\nstart UpdateFilesCheck");
@@ -167,9 +165,13 @@ namespace PD2Launcherv2.Helpers
                 {
                     if (cloudFile.Name.EndsWith("/")) continue; // Skip directory placeholders
 
-                    var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
+                    // Normalize the directory separator for the current platform
+                    var normalizedPath = cloudFile.Name.Replace("/", Path.DirectorySeparatorChar.ToString());
+                    var localFilePath = Path.Combine(fullUpdatePath, normalizedPath);
+
+                    // Create the directory for the file if it doesn't exist
                     var directoryPath = Path.GetDirectoryName(localFilePath);
-                    Directory.CreateDirectory(directoryPath);
+                    if (directoryPath != null) Directory.CreateDirectory(directoryPath);
 
                     bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(localFilePath);
                     bool isDownloadedSuccessfully = false;
@@ -190,8 +192,29 @@ namespace PD2Launcherv2.Helpers
 
                     if (isDownloadedSuccessfully || (shouldExclude && File.Exists(localFilePath)))
                     {
-                        // Logic to handle file after successful download or if it's excluded but already exists
-                        File.Copy(localFilePath, Path.Combine(installPath, cloudFile.Name), true);
+                        // Calculate the relative path of directory
+                        var relativeFilePath = Path.GetRelativePath(fullUpdatePath, localFilePath);
+
+                        // Construct the destination path by combining the install path with the relative file path
+                        var destinationFilePath = Path.Combine(installPath, relativeFilePath);
+
+                        // Ensure the directory for the destination file exists
+                        var destinationDirectory = Path.GetDirectoryName(destinationFilePath);
+                        if (destinationDirectory != null && !Directory.Exists(destinationDirectory))
+                        {
+                            Directory.CreateDirectory(destinationDirectory);
+                        }
+
+                        Debug.WriteLine($"Copying file from '{localFilePath}' to '{destinationFilePath}'");
+                        try
+                        {
+                            // Copy the file from the "Live" directory back to the appropriate location
+                            File.Copy(localFilePath, destinationFilePath, true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error copying file from '{localFilePath}' to '{destinationFilePath}': {ex}");
+                        }
                     }
 
                     processedFiles++;
@@ -207,6 +230,49 @@ namespace PD2Launcherv2.Helpers
             }
 
             Debug.WriteLine("end UpdateFilesCheck \n");
+        }
+
+        public async Task SyncFilesFromEnvToRoot(ILocalStorage localStorage)
+        {
+            FileUpdateModel fileUpdate = localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            var installPath = Directory.GetCurrentDirectory();
+            var livePath = Path.Combine(installPath, fileUpdate.FilePath);
+
+            // Ensure the Live directory exists
+            if (!Directory.Exists(livePath))
+            {
+                Debug.WriteLine($"{livePath} directory does not exist, skipping sync.");
+                return;
+            }
+
+            var filesInLive = Directory.EnumerateFiles(livePath, "*.*", SearchOption.AllDirectories);
+
+            foreach (var sourceFilePath in filesInLive)
+            {
+                // Calculate relative path from Live to handle nested directories correctly
+                var relativePath = Path.GetRelativePath(livePath, sourceFilePath);
+
+                // Skip excluded files
+                if (IsFileExcluded(relativePath.Replace(Path.DirectorySeparatorChar, '/')))
+                {
+                    continue;
+                }
+
+                var destinationFilePath = Path.Combine(installPath, relativePath);
+
+                if (!File.Exists(destinationFilePath))
+                {
+                    // Ensure destination directory exists
+                    var destinationDirectory = Path.GetDirectoryName(destinationFilePath);
+                    if (destinationDirectory != null && !Directory.Exists(destinationDirectory))
+                    {
+                        Directory.CreateDirectory(destinationDirectory);
+                    }
+
+                    File.Copy(sourceFilePath, destinationFilePath, true);
+                    Debug.WriteLine($"Copied missing file from '{sourceFilePath}' to '{destinationFilePath}'");
+                }
+            }
         }
 
         private void ShowErrorMessage(string message)
