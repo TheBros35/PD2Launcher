@@ -66,7 +66,7 @@ namespace PD2Launcherv2
             FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
-                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-beta-launcher-update/o",
+                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-launcher-update/o",
                 FilePath = "Live"
             };
 
