@@ -38,7 +38,7 @@ namespace PD2Launcherv2.ViewModels
             var fileUpdateModel = new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
-                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-beta-launcher-update/o",
+                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-launcher-update/o",
                 FilePath = "Live"
             };
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
@@ -53,7 +53,7 @@ namespace PD2Launcherv2.ViewModels
             var fileUpdateModel = new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-beta-client-files/o",
-                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-beta-launcher-update/o",
+                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-launcher-update/o",
                 FilePath = "Beta"
             };
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
