@@ -8,28 +8,56 @@ using PD2Launcherv2.Models;
 using PD2Launcherv2.Views;
 using ProjectDiablo2Launcherv2.Models;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Threading;
 
 namespace PD2Launcherv2
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         private readonly ILocalStorage _localStorage;
         private readonly FileUpdateHelpers _fileUpdateHelpers;
         private readonly FilterHelpers _filterHelpers;
         private readonly LaunchGameHelpers _launchGameHelpers;
         private readonly NewsHelpers _newsHelpers;
         private readonly DDrawHelpers _dDrawHelpers;
+        private bool _isBeta;
+        public bool IsBeta
+        {
+            get => _isBeta;
+            set
+            {
+                if (_isBeta != value)
+                {
+                    _isBeta = value;
+                    Debug.WriteLine($"IsBeta changing to: {value}");
+                    OnPropertyChanged(nameof(IsBeta));
+                    OnPropertyChanged(nameof(StatusImageSource));
+                }
+            }
+        }
+
+        public string StatusImageSource
+        {
+            get
+            {
+                return IsBeta ? "pack://application:,,,/Resources/Images/btn_beta.jpg" :
+                                "pack://application:,,,/Resources/Images/btn_live.jpg";
+            }
+        }
+
         public List<NewsItem> NewsItems { get; set; }
-        public bool IsBeta { get; private set; }
         public bool IsDisableUpdates { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
@@ -298,6 +326,7 @@ namespace PD2Launcherv2
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
         }
+
         private void LoadConfiguration()
         {
             // Assuming _localStorage has already been initialized
@@ -307,14 +336,14 @@ namespace PD2Launcherv2
             IsDisableUpdates = launcherArgs?.disableAutoUpdate == true;
 
             // Directly setting the Visibility of Notifications
-            BetaNotification.Visibility = IsBeta ? Visibility.Visible : Visibility.Collapsed;
             UpdatesNotification.Visibility = IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OnConfigurationChanged(ConfigurationChangeMessage message)
         {
+            IsBeta = message.IsBeta;
             // Update UI based on the message content
-            BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
+            OnPropertyChanged(nameof(IsBeta));;
             UpdatesNotification.Visibility = message.IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -325,10 +354,20 @@ namespace PD2Launcherv2
 
         private async Task InitializeAsync()
         {
+            // Fetch and store the latest news from the repository
             await _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
+            // Fetch and store the latest reset info from the repository
+            await _newsHelpers.FetchResetInfoAsync(_localStorage); 
+
+            // Load the stored news
             News theNews = _localStorage.LoadSection<News>(StorageKey.News);
-            NewsItems = theNews?.news ?? new List<NewsItem>();
-            NewsListBox.ItemsSource = NewsItems;
+            List<NewsItem> newsItems = theNews?.news ?? new List<NewsItem>();
+
+            // Check and append reset news item if the reset time is in the future
+            AppendResetNewsItemIfApplicable(newsItems);
+
+            // Set the modified list as the item source for the UI
+            NewsListBox.ItemsSource = newsItems;
         }
 
         private void LoadAndUpdateDDrawOptions()
@@ -439,6 +478,49 @@ namespace PD2Launcherv2
             _localStorage.InitializeIfNotExists<Pd2AuthorList>(StorageKey.Pd2AuthorList, new Pd2AuthorList());
             _localStorage.InitializeIfNotExists<News>(StorageKey.News, new News());
             _localStorage.InitializeIfNotExists<WindowPositionModel>(StorageKey.WindowPosition, new WindowPositionModel());
+        }
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private async Task FetchAndHandleResetInfoAsync()
+        {
+            await _newsHelpers.FetchResetInfoAsync(_localStorage);
+        }
+
+        private void AppendResetNewsItemIfApplicable(List<NewsItem> newsItems)
+        {
+            var resetInfo = _localStorage.LoadSection<ResetInfo>(StorageKey.ResetInfo);
+            if (resetInfo != null && resetInfo.ResetData != null)
+            {
+                var resetTimeUtc = resetInfo.ResetData.ResetTime;
+                // Check if the reset time is in the future
+                if (resetTimeUtc > DateTime.UtcNow)
+                {
+                    // Convert UTC reset time to local time
+                    var resetTimeLocal = resetTimeUtc.ToLocalTime();
+
+                    // Format the local reset time
+                    string formattedLocalResetTime = resetTimeLocal.ToString("MMMM dd 'at' hh:mm tt", CultureInfo.InvariantCulture);
+
+                    // Append or insert the local reset time into the summary
+                    string updatedSummary = $"{resetInfo.ResetData.ResetSummary} {formattedLocalResetTime}).";
+
+                    var resetNewsItem = new NewsItem
+                    {
+                        Date = resetTimeUtc.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture),
+                        Title = resetInfo.ResetData.ResetTitle,
+                        Summary = updatedSummary,
+                        Content = resetInfo.ResetData.ResetContent ?? "Check out the details for the upcoming season reset.",
+                        Link = resetInfo.ResetData.ResetLink
+                    };
+
+                    // Prepend the reset news item to the list
+                    newsItems.Insert(0, resetNewsItem);
+                }
+            }
         }
     }
 }
