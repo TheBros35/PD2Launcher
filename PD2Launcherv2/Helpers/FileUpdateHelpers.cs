@@ -323,6 +323,7 @@ namespace PD2Launcherv2.Helpers
             {
                 Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
             }
+            onDownloadComplete?.Invoke();
             Debug.WriteLine("end UpdateLauncherCheck \n");
         }
 
