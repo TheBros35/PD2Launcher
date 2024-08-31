@@ -263,7 +263,7 @@
     <Style TargetType="CheckBox" x:Key="CustomCheckBoxStyle">
         <Setter Property="FontFamily" Value="{StaticResource BlizzMedium}"/>
         <Setter Property="FontSize" Value="18"/>
-        <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource GoldLighterBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
