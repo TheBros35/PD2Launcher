@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Web.WebView2.Wpf;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
@@ -7,6 +8,7 @@ using PD2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Windows.Input;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -17,6 +19,20 @@ namespace PD2Launcherv2.ViewModels
         public RelayCommand SaveFilterCommand { get; private set; }
         public RelayCommand OpenAuthorsPageCommand { get; private set; }
         public RelayCommand OpenHelpPageCommand { get; private set; }
+        private WebView2 _filterWebView2;
+        public ICommand OpenFilterBirdCommand { get; }
+        public ICommand CloseFilterPreviewCommand { get; }
+
+        private bool _isWebViewVisible;
+        public bool IsWebViewVisible
+        {
+            get => _isWebViewVisible;
+            set
+            {
+                _isWebViewVisible = value;
+                OnPropertyChanged();
+            }
+        }
 
         private List<FilterAuthor> _authorsList;
         public List<FilterAuthor> AuthorsList
@@ -98,6 +114,9 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
             OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
+            OpenFilterBirdCommand = new RelayCommand(OpenFilterBird);
+            CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
+            IsWebViewVisible = false;
         }
 
         public async Task InitializeAsync()
@@ -106,6 +125,67 @@ namespace PD2Launcherv2.ViewModels
             await FetchAndStoreFilterAuthorsAsync();
             SelectStoredAuthorAndFilter();
         }
+
+        public void SetWebView2(WebView2 webView2)
+        {
+            _filterWebView2 = webView2;
+        }
+
+        private async void OpenFilterBird()
+        {
+            if (SelectedFilter == null)
+            {
+                Debug.WriteLine("No filter selected.");
+                return;
+            }
+
+            string filePath = @"C:\CollabRepos\filterbird\index.html";
+
+            try
+            {
+                if (_filterWebView2 == null)
+                {
+                    Debug.WriteLine("WebView2 control is not set.");
+                    return;
+                }
+
+                // Initialize WebView2 if not done already
+                if (_filterWebView2.CoreWebView2 == null)
+                {
+                    await _filterWebView2.EnsureCoreWebView2Async(null);
+                }
+
+                // Fetch the filter content
+                var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
+
+                // Make WebView2 visible
+                IsWebViewVisible = true;
+
+                // Navigate to the HTML file
+                _filterWebView2.Source = new Uri(filePath);
+
+                // Inject the fetched filter content into the WebView2 after the page loads
+                _filterWebView2.CoreWebView2.NavigationCompleted += async (sender, args) =>
+                {
+                    //add param to prevent injection
+                    string script = $"document.getElementById('filter_text_1').innerHTML = `{filterContent}`;";
+                    await _filterWebView2.CoreWebView2.ExecuteScriptAsync(script);
+                    await _filterWebView2.CoreWebView2.ExecuteScriptAsync($"loadedFromApp();");
+
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error loading or interacting with the HTML file: " + ex.Message);
+            }
+        }
+
+        private void CloseFilterPreview()
+        {
+            IsWebViewVisible = false;
+            _filterWebView2.CoreWebView2.NavigateToString("");
+        }
+
 
         private void OpenHelpPageExecute()
         {

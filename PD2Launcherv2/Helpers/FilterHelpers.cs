@@ -20,6 +20,21 @@ namespace PD2Launcherv2.Helpers
             _httpClient = httpClient;
             _localStorage = localStorage;
         }
+        public async Task<string> FetchFilterContentAsyncForFilterBird(string downloadUrl)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync(downloadUrl);
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadAsStringAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error fetching filter content: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
         private async Task<HttpResponseMessage> GetAsync(string url, string eTag = null)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);

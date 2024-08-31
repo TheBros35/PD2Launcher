@@ -4,11 +4,17 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
+      xmlns:converters="clr-namespace:PD2Launcherv2.Converters"
+      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       Width="750" Height="550"
       mc:Ignorable="d" 
       Title="FiltersView"
       Loaded="FiltersView_Loaded"
       DataContext="{Binding FiltersViewModel, Source={StaticResource ViewModelLocator}}">
+
+    <Page.Resources>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
 
     <Grid>
         <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
@@ -90,7 +96,45 @@
                     FontSize="18"
                     Margin="0,0,0,50"
                     />
+
+            <Button Content="Preview Filter"
+                Style="{StaticResource CustomColorChangeButton}"
+                Command="{Binding OpenFilterBirdCommand}"
+                FontFamily="{StaticResource BlizzMedium}"
+                FocusVisualStyle="{x:Null}"
+                FontSize="18"
+                Margin="0,0,0,50"
+                />
+
+            <Button Content="Close Preview"
+                Style="{StaticResource CustomColorChangeButton}"
+                Command="{Binding CloseFilterPreviewCommand}"
+                FontFamily="{StaticResource BlizzMedium}"
+                FocusVisualStyle="{x:Null}"
+                FontSize="18"
+                Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Margin="0,0,0,0"/>
         </StackPanel>
 
+        <Grid>
+            <!-- WebView2 control, visibility bound to IsWebViewVisible -->
+            <wv2:WebView2 x:Name="FilterWebView2" 
+                  HorizontalAlignment="Center" 
+                  VerticalAlignment="Center"
+                  Margin="0,0,0,-40"
+                  Height="580"
+                  Width="775"
+                  Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+            <!-- Close Button Overlay on WebView2 -->
+            <Button Content="X"
+                    Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-30,-20,0"
+                    Background="Transparent" Foreground="RED"
+                    Width="40" Height="40" Cursor="Hand"
+                    Command="{Binding CloseFilterPreviewCommand}"
+                    Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Panel.ZIndex="99" />
+        </Grid>
     </Grid>
 </Page>
