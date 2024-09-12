@@ -132,8 +132,6 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,30,0,0" Panel.ZIndex="3">
                 <TextBlock Text="FilterBird" FontSize="24" FontFamily="{StaticResource BlizzHeavy}" 
                    Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center"/>
-                <TextBlock Text="By: BetweenWalls" FontSize="10" FontFamily="{StaticResource BlizzMedium}" 
-                   Foreground="{StaticResource SoftWhite}" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
             </StackPanel>
 
             <wv2:WebView2 x:Name="FilterWebView2" 

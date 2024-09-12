@@ -139,7 +139,7 @@ namespace PD2Launcherv2.ViewModels
                 return;
             }
 
-            string remoteUrl = "https://pritchardjasonr.github.io/filterbird/";
+            string remoteUrl = "https://equa1itype4ce.github.io/filterbird/";
 
             try
             {
@@ -193,7 +193,6 @@ namespace PD2Launcherv2.ViewModels
             IsWebViewVisible = false;
             _filterWebView2.CoreWebView2.NavigateToString("");
         }
-
 
         private void OpenHelpPageExecute()
         {
@@ -287,7 +286,6 @@ namespace PD2Launcherv2.ViewModels
             }
 
         }
-
         private void SaveFilterToStorage()
         {
             if (SelectedAuthor != null && SelectedFilter != null)
@@ -318,7 +316,7 @@ namespace PD2Launcherv2.ViewModels
                 {
                     // Update storage to reflect the new or updated filter
                     SaveFilterToStorage();
-                    Debug.WriteLine("Filter applied successfully.");
+                    Debug.WriteLine("Filter applied");
                     Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
                 }
                 else
