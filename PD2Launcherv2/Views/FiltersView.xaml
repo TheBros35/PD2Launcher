@@ -4,11 +4,18 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
+      xmlns:converters="clr-namespace:PD2Launcherv2.Converters"
+      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       Width="750" Height="550"
       mc:Ignorable="d" 
       Title="FiltersView"
       Loaded="FiltersView_Loaded"
       DataContext="{Binding FiltersViewModel, Source={StaticResource ViewModelLocator}}">
+
+    <Page.Resources>
+        <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Page.Resources>
 
     <Grid>
         <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
@@ -90,7 +97,61 @@
                     FontSize="18"
                     Margin="0,0,0,50"
                     />
+
+            <Button Content="Preview Filter"
+        Command="{Binding OpenFilterBirdCommand}"
+        FontFamily="{StaticResource BlizzMedium}"
+        FocusVisualStyle="{x:Null}"
+        FontSize="18"
+        Margin="0,0,0,50"
+        IsEnabled="{Binding SelectedFilter, Converter={StaticResource NullToBooleanConverter}}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource CustomColorChangeButton}">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="Gray"/>
+                                <Setter Property="Foreground" Value="LightGray"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="Close Preview"
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding CloseFilterPreviewCommand}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="18"
+                    Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Margin="0,0,0,0"/>
         </StackPanel>
 
+        <Grid Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill" Panel.ZIndex="1"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,30,0,0" Panel.ZIndex="3">
+                <TextBlock Text="FilterBird" FontSize="24" FontFamily="{StaticResource BlizzHeavy}" 
+                   Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="By: BetweenWalls" FontSize="10" FontFamily="{StaticResource BlizzMedium}" 
+                   Foreground="{StaticResource SoftWhite}" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
+            </StackPanel>
+
+            <wv2:WebView2 x:Name="FilterWebView2" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Bottom"
+                          DefaultBackgroundColor="Transparent"
+                          Margin="0,0,0,0"
+                          Height="475"
+                          Width="745"
+                          Panel.ZIndex="2" />
+
+            <Button Content="X" FontSize="30"
+                    Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0"
+                    Background="Transparent" Foreground="{StaticResource GoldBrush}"
+                    Width="50" Height="50"
+                    Command="{Binding CloseFilterPreviewCommand}"
+                    Panel.ZIndex="99"/>
+        </Grid>
     </Grid>
 </Page>

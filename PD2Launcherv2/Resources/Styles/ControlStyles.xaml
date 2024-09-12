@@ -57,7 +57,6 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <!-- Image Button -->
 
     <Style TargetType="{x:Type local:CustomImageButton}">
         <Setter Property="Template">
@@ -97,11 +96,9 @@
                                       VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        <!-- Change background when mouse hovers over -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Background" Value="{StaticResource GoldLighterBrush}" />
                         </Trigger>
-                        <!-- Ensure the IsPressed effect shows even with IsMouseOver -->
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{StaticResource ShakoBrush}" />
                         </Trigger>
