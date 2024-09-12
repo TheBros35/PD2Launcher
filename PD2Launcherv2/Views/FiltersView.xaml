@@ -13,6 +13,7 @@
       DataContext="{Binding FiltersViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Page.Resources>
+        <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </Page.Resources>
 
@@ -98,43 +99,59 @@
                     />
 
             <Button Content="Preview Filter"
-                Style="{StaticResource CustomColorChangeButton}"
-                Command="{Binding OpenFilterBirdCommand}"
-                FontFamily="{StaticResource BlizzMedium}"
-                FocusVisualStyle="{x:Null}"
-                FontSize="18"
-                Margin="0,0,0,50"
-                />
+        Command="{Binding OpenFilterBirdCommand}"
+        FontFamily="{StaticResource BlizzMedium}"
+        FocusVisualStyle="{x:Null}"
+        FontSize="18"
+        Margin="0,0,0,50"
+        IsEnabled="{Binding SelectedFilter, Converter={StaticResource NullToBooleanConverter}}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource CustomColorChangeButton}">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="Gray"/>
+                                <Setter Property="Foreground" Value="LightGray"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
 
             <Button Content="Close Preview"
-                Style="{StaticResource CustomColorChangeButton}"
-                Command="{Binding CloseFilterPreviewCommand}"
-                FontFamily="{StaticResource BlizzMedium}"
-                FocusVisualStyle="{x:Null}"
-                FontSize="18"
-                Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                Margin="0,0,0,0"/>
+                    Style="{StaticResource CustomColorChangeButton}"
+                    Command="{Binding CloseFilterPreviewCommand}"
+                    FontFamily="{StaticResource BlizzMedium}"
+                    FocusVisualStyle="{x:Null}"
+                    FontSize="18"
+                    Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Margin="0,0,0,0"/>
         </StackPanel>
 
-        <Grid>
-            <!-- WebView2 control, visibility bound to IsWebViewVisible -->
-            <wv2:WebView2 x:Name="FilterWebView2" 
-                  HorizontalAlignment="Center" 
-                  VerticalAlignment="Center"
-                  Margin="0,0,0,-40"
-                  Height="580"
-                  Width="775"
-                  Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}" />
+        <Grid Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill" Panel.ZIndex="1"/>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,30,0,0" Panel.ZIndex="3">
+                <TextBlock Text="FilterBird" FontSize="24" FontFamily="{StaticResource BlizzHeavy}" 
+                   Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center"/>
+                <TextBlock Text="By: BetweenWalls" FontSize="10" FontFamily="{StaticResource BlizzMedium}" 
+                   Foreground="{StaticResource SoftWhite}" HorizontalAlignment="Center" Margin="0,-5,0,0"/>
+            </StackPanel>
 
-            <!-- Close Button Overlay on WebView2 -->
-            <Button Content="X"
+            <wv2:WebView2 x:Name="FilterWebView2" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Bottom"
+                          DefaultBackgroundColor="Transparent"
+                          Margin="0,0,0,0"
+                          Height="475"
+                          Width="745"
+                          Panel.ZIndex="2" />
+
+            <Button Content="X" FontSize="30"
                     Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}"
-                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-30,-20,0"
-                    Background="Transparent" Foreground="RED"
-                    Width="40" Height="40" Cursor="Hand"
+                    HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0"
+                    Background="Transparent" Foreground="{StaticResource GoldBrush}"
+                    Width="50" Height="50"
                     Command="{Binding CloseFilterPreviewCommand}"
-                    Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                    Panel.ZIndex="99" />
+                    Panel.ZIndex="99"/>
         </Grid>
     </Grid>
 </Page>

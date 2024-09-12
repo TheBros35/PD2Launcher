@@ -139,7 +139,7 @@ namespace PD2Launcherv2.ViewModels
                 return;
             }
 
-            string filePath = @"C:\CollabRepos\filterbird\index.html";
+            string remoteUrl = "https://pritchardjasonr.github.io/filterbird/";
 
             try
             {
@@ -149,26 +149,34 @@ namespace PD2Launcherv2.ViewModels
                     return;
                 }
 
-                // Initialize WebView2 if not done already
+                // Init WebView2 if its null
                 if (_filterWebView2.CoreWebView2 == null)
                 {
                     await _filterWebView2.EnsureCoreWebView2Async(null);
                 }
 
-                // Fetch the filter content
+                // GET the filter content
                 var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
 
-                // Make WebView2 visible
+                //attempt to escape and nefarious attempts from filter creators
+                string sanitizedFilterContent = filterContent
+                    .Replace("\\", "\\\\")
+                    .Replace("'", "\\'")
+                    .Replace("\"", "\\\"")
+                    .Replace("\n", "\\n")
+                    .Replace("\r", "\\r");
+
+                //WebView2 visible
                 IsWebViewVisible = true;
 
-                // Navigate to the HTML file
-                _filterWebView2.Source = new Uri(filePath);
+                // Open filterbird
+                _filterWebView2.Source = new Uri(remoteUrl);
 
-                // Inject the fetched filter content into the WebView2 after the page loads
+                // inject filter onto filterbird
                 _filterWebView2.CoreWebView2.NavigationCompleted += async (sender, args) =>
                 {
                     //add param to prevent injection
-                    string script = $"document.getElementById('filter_text_1').innerHTML = `{filterContent}`;";
+                    string script = $"document.getElementById('filter_text_1').innerHTML = '{sanitizedFilterContent}';";
                     await _filterWebView2.CoreWebView2.ExecuteScriptAsync(script);
                     await _filterWebView2.CoreWebView2.ExecuteScriptAsync($"loadedFromApp();");
 
