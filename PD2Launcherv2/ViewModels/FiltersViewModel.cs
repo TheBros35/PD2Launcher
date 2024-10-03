@@ -22,6 +22,7 @@ namespace PD2Launcherv2.ViewModels
         private WebView2 _filterWebView2;
         public ICommand OpenFilterBirdCommand { get; }
         public ICommand CloseFilterPreviewCommand { get; }
+        public RelayCommand FilterPreviewICommand { get; private set; } 
 
         private bool _isWebViewVisible;
         public bool IsWebViewVisible
@@ -114,6 +115,7 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
             OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
+            FilterPreviewICommand = new RelayCommand(OpenFilterPreviewIExecute);
             OpenFilterBirdCommand = new RelayCommand(OpenFilterBird);
             CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
             IsWebViewVisible = false;
@@ -198,6 +200,13 @@ namespace PD2Launcherv2.ViewModels
         {
             OpenUrlInBrowser("https://github.com/Project-Diablo-2/LootFilters");
         }
+
+        private void OpenFilterPreviewIExecute()
+        {
+            OpenUrlInBrowser("https://github.com/Equa1ityPe4ce/filterbird");
+        }
+
+
 
         private void SelectStoredAuthorAndFilter()
         {
