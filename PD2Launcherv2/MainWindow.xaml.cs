@@ -11,6 +11,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
+using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -203,14 +204,20 @@ namespace PD2Launcherv2
                     bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
                 }
 
-                // Your existing update logic here...
                 LauncherArgs launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
                 if (!launcherArgs.disableAutoUpdate)
                 {
-                    // Wait for the update process to complete,
-                    await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, new Progress<double>(UpdateProgress), () => { });
-                    Debug.WriteLine("made it out of the update check");
-                    await _fileUpdateHelpers.SyncFilesFromEnvToRoot(_localStorage);
+                    try
+                    {
+                        await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, new Progress<double>(UpdateProgress), () => { });
+                        Debug.WriteLine("made it out of the update check");
+                        await _fileUpdateHelpers.SyncFilesFromEnvToRoot(_localStorage);
+                    }
+                    catch (HttpRequestException ex)
+                    {
+                        Debug.WriteLine($"Update failed: {ex.Message}. Proceeding in offline mode.");
+                        MessageBox.Show("Could not check for updates. Proceeding in offline mode.", "Offline Mode", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
                 }
                 _launchGameHelpers.LaunchGame(_localStorage);
             }
@@ -218,7 +225,6 @@ namespace PD2Launcherv2
             {
                 Debug.WriteLine($"Exception occurred during PlayButton_Click: {ex.Message}");
                 ShowErrorMessage($"An error occurred: {ex.Message}");
-                // Additional exception handling logic can go here
             }
             finally
             {
