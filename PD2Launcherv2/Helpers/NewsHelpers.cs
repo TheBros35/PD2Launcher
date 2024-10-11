@@ -114,38 +114,55 @@ namespace PD2Launcherv2.Helpers
                 requestMessage.Headers.IfNoneMatch.Add(new System.Net.Http.Headers.EntityTagHeaderValue($"\"{currentResetInfoData.ETag}\""));
             }
 
-            var response = await _httpClient.SendAsync(requestMessage);
-            Debug.WriteLine($"response.StatusCode {response.StatusCode}");
-            if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
+            try
             {
-                Debug.WriteLine("Reset data not changed.");
-                return currentResetInfoData; // or return null if you don't need to update the UI
-            }
+                // Attempt to fetch data from the server
+                var response = await _httpClient.SendAsync(requestMessage);
+                Debug.WriteLine($"response.StatusCode {response.StatusCode}");
 
-            if (response.IsSuccessStatusCode)
-            {
-                var content = await response.Content.ReadAsStringAsync();
-                var resetItem = JsonConvert.DeserializeObject<ResetItem>(content);
-                var eTagValue = response.Headers.ETag?.Tag?.Trim('"');
-                Debug.WriteLine($"new eTagValue {eTagValue}");
-
-                // Update the reset data and ETag in local storage
-                var newResetInfoData = new ResetInfo
+                if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
                 {
-                    ETag = eTagValue,
-                    ResetData = resetItem
-                };
+                    Debug.WriteLine("Reset data not changed.");
+                    return currentResetInfoData;
+                }
 
-                _localStorage.Update(StorageKey.ResetInfo, newResetInfoData);
-                Debug.WriteLine("Reset data and ETag updated.");
-                return newResetInfoData;
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    var resetItem = JsonConvert.DeserializeObject<ResetItem>(content);
+                    var eTagValue = response.Headers.ETag?.Tag?.Trim('"');
+                    Debug.WriteLine($"new eTagValue {eTagValue}");
+
+                    // Update the reset data and ETag in local storage
+                    var newResetInfoData = new ResetInfo
+                    {
+                        ETag = eTagValue,
+                        ResetData = resetItem
+                    };
+
+                    _localStorage.Update(StorageKey.ResetInfo, newResetInfoData);
+                    Debug.WriteLine("Reset data and ETag updated.");
+                    return newResetInfoData;
+                }
+                else
+                {
+                    Debug.WriteLine($"Failed to fetch reset info. Status Code: {response.StatusCode}");
+                    return currentResetInfoData;
+                }
             }
-            else
+            catch (HttpRequestException ex)
             {
-                Debug.WriteLine($"Failed to fetch reset info. Status Code: {response.StatusCode}");
-                return null;
+                // Handle network-related exceptions (like no internet connection)
+                Debug.WriteLine($"Failed to fetch reset info. Exception: {ex.Message}");
+                Debug.WriteLine("Falling back to offline mode using cached reset info.");
+                return currentResetInfoData;
             }
-            Debug.WriteLine("FetchResetInfoAsync end\n\n");
+            catch (Exception ex)
+            {
+                // Handle any other exceptions
+                Debug.WriteLine($"An unexpected error occurred: {ex.Message}");
+                return currentResetInfoData;
+            }
         }
 
         public void InsertResetNewsItemIfApplicable(ILocalStorage _localStorage, List<NewsItem> newsItems)

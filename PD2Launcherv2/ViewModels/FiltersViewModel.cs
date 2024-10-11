@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Web.WebView2.Wpf;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
@@ -7,6 +8,7 @@ using PD2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Windows.Input;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -17,6 +19,21 @@ namespace PD2Launcherv2.ViewModels
         public RelayCommand SaveFilterCommand { get; private set; }
         public RelayCommand OpenAuthorsPageCommand { get; private set; }
         public RelayCommand OpenHelpPageCommand { get; private set; }
+        private WebView2 _filterWebView2;
+        public ICommand OpenFilterBirdCommand { get; }
+        public ICommand CloseFilterPreviewCommand { get; }
+        public RelayCommand FilterPreviewICommand { get; private set; } 
+
+        private bool _isWebViewVisible;
+        public bool IsWebViewVisible
+        {
+            get => _isWebViewVisible;
+            set
+            {
+                _isWebViewVisible = value;
+                OnPropertyChanged();
+            }
+        }
 
         private List<FilterAuthor> _authorsList;
         public List<FilterAuthor> AuthorsList
@@ -98,6 +115,10 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
             OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
+            FilterPreviewICommand = new RelayCommand(OpenFilterPreviewIExecute);
+            OpenFilterBirdCommand = new RelayCommand(OpenFilterBird);
+            CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
+            IsWebViewVisible = false;
         }
 
         public async Task InitializeAsync()
@@ -107,10 +128,85 @@ namespace PD2Launcherv2.ViewModels
             SelectStoredAuthorAndFilter();
         }
 
+        public void SetWebView2(WebView2 webView2)
+        {
+            _filterWebView2 = webView2;
+        }
+
+        private async void OpenFilterBird()
+        {
+            if (SelectedFilter == null)
+            {
+                Debug.WriteLine("No filter selected.");
+                return;
+            }
+
+            string remoteUrl = "https://equa1itype4ce.github.io/filterbird/";
+
+            try
+            {
+                if (_filterWebView2 == null)
+                {
+                    Debug.WriteLine("WebView2 control is not set.");
+                    return;
+                }
+
+                // Init WebView2 if its null
+                if (_filterWebView2.CoreWebView2 == null)
+                {
+                    await _filterWebView2.EnsureCoreWebView2Async(null);
+                }
+
+                // GET the filter content
+                var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
+
+                //attempt to escape and nefarious attempts from filter creators
+                string sanitizedFilterContent = filterContent
+                    .Replace("\\", "\\\\")
+                    .Replace("'", "\\'")
+                    .Replace("\"", "\\\"")
+                    .Replace("\n", "\\n")
+                    .Replace("\r", "\\r");
+
+                //WebView2 visible
+                IsWebViewVisible = true;
+
+                // Open filterbird
+                _filterWebView2.Source = new Uri(remoteUrl);
+
+                // inject filter onto filterbird
+                _filterWebView2.CoreWebView2.NavigationCompleted += async (sender, args) =>
+                {
+                    //add param to prevent injection
+                    string script = $"document.getElementById('filter_text_1').innerHTML = '{sanitizedFilterContent}';";
+                    await _filterWebView2.CoreWebView2.ExecuteScriptAsync(script);
+                    await _filterWebView2.CoreWebView2.ExecuteScriptAsync($"loadedFromApp();");
+
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error loading or interacting with the HTML file: " + ex.Message);
+            }
+        }
+
+        private void CloseFilterPreview()
+        {
+            IsWebViewVisible = false;
+            _filterWebView2.CoreWebView2.NavigateToString("");
+        }
+
         private void OpenHelpPageExecute()
         {
             OpenUrlInBrowser("https://github.com/Project-Diablo-2/LootFilters");
         }
+
+        private void OpenFilterPreviewIExecute()
+        {
+            OpenUrlInBrowser("https://github.com/Equa1ityPe4ce/filterbird");
+        }
+
+
 
         private void SelectStoredAuthorAndFilter()
         {
@@ -199,7 +295,6 @@ namespace PD2Launcherv2.ViewModels
             }
 
         }
-
         private void SaveFilterToStorage()
         {
             if (SelectedAuthor != null && SelectedFilter != null)
@@ -230,7 +325,7 @@ namespace PD2Launcherv2.ViewModels
                 {
                     // Update storage to reflect the new or updated filter
                     SaveFilterToStorage();
-                    Debug.WriteLine("Filter applied successfully.");
+                    Debug.WriteLine("Filter applied");
                     Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
                 }
                 else

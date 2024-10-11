@@ -138,24 +138,27 @@ namespace PD2Launcherv2.Helpers
             return localCrc == remoteCrc;
         }
 
-        public async Task<bool> TryDownloadFileAsync(string mediaLink, string path, int maxRetries = 3, IProgress<double> progress = null)
+        private async Task TryDownloadFileAsync(string mediaLink, string localFilePath, int retries, IProgress<double> progress)
         {
-            int attempts = 0;
-            while (attempts < maxRetries)
+            try
             {
-                try
+                var response = await _httpClient.GetAsync(mediaLink);
+                if (response.IsSuccessStatusCode)
                 {
-                    await DownloadFileAsync(mediaLink, path, progress);
-                    return true;
-                }
-                catch (HttpRequestException ex)
-                {
-                    Debug.WriteLine($"Download failed: {ex.Message}, Attempt {attempts + 1} of {maxRetries}");
-                    attempts++;
-                    await Task.Delay(2000); // Wait before retrying
+                    using (var fs = new FileStream(localFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        await response.Content.CopyToAsync(fs);
+                    }
                 }
             }
-            return false;
+            catch (HttpRequestException ex)
+            {
+                Debug.WriteLine($"Failed to download file: {mediaLink}, due to network issues: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to download file: {mediaLink}, due to error: {ex.Message}");
+            }
         }
 
         public async Task UpdateFilesCheck(ILocalStorage _localStorage, IProgress<double> progress, Action onDownloadComplete)
@@ -179,7 +182,7 @@ namespace PD2Launcherv2.Helpers
 
                 foreach (var cloudFile in cloudFileItems)
                 {
-                    if (cloudFile.Name.EndsWith("/")) continue; // Skip directories
+                    if (cloudFile.Name.EndsWith("/")) continue;
 
                     var normalizedPath = cloudFile.Name.Replace("/", Path.DirectorySeparatorChar.ToString());
                     var localFilePath = Path.Combine(fullUpdatePath, normalizedPath);
@@ -192,7 +195,6 @@ namespace PD2Launcherv2.Helpers
 
                     if (shouldExclude && !localFileExists)
                     {
-                        // For excluded files, download only if they do not exist.
                         await TryDownloadFileAsync(cloudFile.MediaLink, localFilePath, 3, progress);
                     }
                     else if (!shouldExclude && (!localFileExists || !CompareCRC(localFilePath, cloudFile.Crc32c)))
@@ -219,12 +221,25 @@ namespace PD2Launcherv2.Helpers
 
                 onDownloadComplete?.Invoke();
             }
+            catch (HttpRequestException ex)
+            {
+                // Handle network errors specifically
+                Debug.WriteLine($"Network error occurred while updating files: {ex.Message}. Switching to offline mode.");
+                onDownloadComplete?.Invoke();
+            }
             catch (Exception ex)
             {
+                // Handle other general exceptions
                 Debug.WriteLine($"An error occurred while updating files: {ex.Message}");
-                Application.Current.Dispatcher.Invoke(() => ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again."));
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again.");
+                });
             }
-            Debug.WriteLine("end UpdateFilesCheck \n");
+            finally
+            {
+                Debug.WriteLine("end UpdateFilesCheck \n");
+            }
         }
 
         public async Task SyncFilesFromEnvToRoot(ILocalStorage localStorage)
