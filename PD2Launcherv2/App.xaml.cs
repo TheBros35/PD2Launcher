@@ -85,7 +85,7 @@ namespace PD2Launcherv2
                 return;
             }
 
-            if (e.Args.Any(arg => arg.Equals("--steam", StringComparison.OrdinalIgnoreCase)))
+            if (e.Args.Any(arg => arg.Equals("--launch", StringComparison.OrdinalIgnoreCase)))
             {
                 Debug.WriteLine("Steam arg Identified: Running Headless Launcher");
 
