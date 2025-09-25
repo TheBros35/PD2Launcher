@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight.Command;
+﻿using CommunityToolkit.Mvvm.Input;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Web.WebView2.Wpf;
 using PD2Launcherv2.Enums;

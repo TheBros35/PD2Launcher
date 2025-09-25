@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight.Command;
+﻿using CommunityToolkit.Mvvm.Input;
 using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
